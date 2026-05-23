@@ -1,0 +1,13 @@
+{
+  "expo": {
+    "name": "Ford Specs Intelligence",
+    "slug": "fiap-mdi-sprint-ford-specs",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "light",
+    "assetBundlePatterns": ["**/*"],
+    "ios": { "supportsTablet": true },
+    "android": { "adaptiveIcon": { "backgroundColor": "#0A2342" } },
+    "web": { "bundler": "metro" }
+  }
+}
