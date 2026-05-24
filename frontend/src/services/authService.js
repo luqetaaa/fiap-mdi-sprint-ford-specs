@@ -1,53 +1,88 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { api, AUTH_TOKEN_KEY, USER_KEY } from './apiClient';
 
-export async function loginWithApi(email, senha) {
-  const { data } = await api.post('/auth/login', {
-    email,
-    senha
-  });
+import {
+  api,
+  STORAGE_KEYS
+} from './apiClient';
 
-  const token = data?.accessToken || data?.token || data?.jwt;
-  const tokenType = data?.tokenType || 'Bearer';
+export async function registerWithApi({
+  nome,
+  email,
+  senha
+}) {
 
-  if (!token) {
-    throw new Error('A API não retornou accessToken no login.');
-  }
-
-  await AsyncStorage.setItem(AUTH_TOKEN_KEY, token);
-
-  const user = {
-    name: data?.nome || data?.name || 'Analista Ford',
-    email,
-    tokenType
-  };
-
-  await AsyncStorage.setItem(USER_KEY, JSON.stringify(user));
-
-  return user;
-}
-
-export async function registerWithApi({ nome, email, senha }) {
-  const { data } = await api.post('/auth/register', {
+  const payload = {
     nome,
     email,
     senha
+  };
+
+  const response = await api.post('/auth/register', payload);
+
+  return response.data;
+}
+
+export async function loginWithApi({
+  email,
+  senha
+}) {
+
+  const response = await api.post('/auth/login', {
+    email,
+    senha
   });
 
-  return data;
+  const data = response.data;
+
+  if (!data?.accessToken) {
+    throw new Error('Token JWT não retornado pela API.');
+  }
+
+  await AsyncStorage.setItem(
+    STORAGE_KEYS.TOKEN,
+    data.accessToken
+  );
+
+  const userData = {
+    email,
+    nome: data?.nome || 'Analista Ford',
+    tokenType: data?.tokenType || 'Bearer'
+  };
+
+  await AsyncStorage.setItem(
+    STORAGE_KEYS.USER,
+    JSON.stringify(userData)
+  );
+
+  return userData;
 }
 
-export async function logoutFromApi() {
-  await AsyncStorage.multiRemove([AUTH_TOKEN_KEY, USER_KEY]);
+export async function getLoggedUser() {
+
+  const rawUser = await AsyncStorage.getItem(
+    STORAGE_KEYS.USER
+  );
+
+  if (!rawUser) {
+    return null;
+  }
+
+  return JSON.parse(rawUser);
 }
 
-export async function loadStoredSession() {
-  const [token, userRaw] = await Promise.all([
-    AsyncStorage.getItem(AUTH_TOKEN_KEY),
-    AsyncStorage.getItem(USER_KEY)
+export async function isAuthenticated() {
+
+  const token = await AsyncStorage.getItem(
+    STORAGE_KEYS.TOKEN
+  );
+
+  return !!token;
+}
+
+export async function logout() {
+
+  await AsyncStorage.multiRemove([
+    STORAGE_KEYS.TOKEN,
+    STORAGE_KEYS.USER
   ]);
-
-  if (!token || !userRaw) return null;
-
-  return JSON.parse(userRaw);
 }
