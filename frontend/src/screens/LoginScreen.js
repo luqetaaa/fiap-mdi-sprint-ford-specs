@@ -1,83 +1,303 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, KeyboardAvoidingView, Platform, TouchableOpacity } from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
-import { useApp } from '../hooks/AppContext';
-import TextInputField from '../components/TextInputField';
-import PrimaryButton from '../components/PrimaryButton';
-import Card from '../components/Card';
-import { loginWithApi, registerWithApi } from '../services/authService';
+
+import {
+  View,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  StyleSheet,
+  ActivityIndicator,
+  ScrollView
+} from 'react-native';
+
+import {
+  loginWithApi,
+  registerWithApi
+} from '../services/authService';
+
 import { getApiErrorMessage } from '../services/apiClient';
-import { colors } from '../theme/colors';
 
-export default function LoginScreen() {
-  const { setUser } = useApp();
-  const [email, setEmail] = useState('victor@test.com');
-  const [password, setPassword] = useState('123456');
-  const [name, setName] = useState('Analista Ford');
-  const [isRegistering, setIsRegistering] = useState(false);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
+export default function LoginScreen({ navigation }) {
 
-  const submit = async () => {
-    if (!email.includes('@') || password.length < 4) {
-      return setError('Informe um e-mail válido e senha com no mínimo 4 caracteres.');
-    }
+  const [isRegisterMode, setIsRegisterMode] =
+    useState(false);
+
+  const [nome, setNome] =
+    useState('Analista Ford');
+
+  const [email, setEmail] =
+    useState('victor@test.com');
+
+  const [senha, setSenha] =
+    useState('123456');
+
+  const [loading, setLoading] =
+    useState(false);
+
+  const [erro, setErro] =
+    useState('');
+
+  async function handleSubmit() {
 
     try {
-      setLoading(true);
-      setError('');
 
-      if (isRegistering) {
-        await registerWithApi({ nome: name, email, senha: password });
+      setErro('');
+      setLoading(true);
+
+      if (!email || email.trim().length === 0) {
+        setErro('O e-mail é obrigatório');
+        return;
       }
 
-      const user = await loginWithApi(email, password);
-      setUser(user);
-    } catch (err) {
-      setError(getApiErrorMessage(err));
+      if (!senha || senha.trim().length === 0) {
+        setErro('A senha é obrigatória');
+        return;
+      }
+
+      if (isRegisterMode) {
+
+        if (!nome || nome.trim().length === 0) {
+          setErro('O nome é obrigatório');
+          return;
+        }
+
+        await registerWithApi(
+          nome,
+          email,
+          senha
+        );
+      }
+
+      await loginWithApi(
+        email,
+        senha
+      );
+
+      navigation.replace('Search');
+
+    } catch (error) {
+
+      setErro(
+        getApiErrorMessage(error)
+      );
+
     } finally {
+
       setLoading(false);
     }
-  };
+  }
 
   return (
-    <LinearGradient colors={[colors.fordBlue, '#07172E']} style={styles.screen}>
-      <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={styles.center}>
-        <Text style={styles.logo}>Ford</Text>
-        <Text style={styles.title}>Specs Intelligence</Text>
-        <Text style={styles.subtitle}>Login integrado com API REST Spring Boot usando autenticação JWT.</Text>
+    <ScrollView
+      style={styles.screen}
+      contentContainerStyle={styles.content}
+      showsVerticalScrollIndicator={false}
+    >
 
-        <Card style={styles.card}>
-          {isRegistering ? (
-            <TextInputField label="Nome" value={name} onChangeText={setName} placeholder="Nome do analista" />
-          ) : null}
+      <View style={styles.header}>
 
-          <TextInputField label="E-mail" value={email} onChangeText={setEmail} placeholder="victor@test.com" autoCapitalize="none" />
-          <TextInputField label="Senha" value={password} onChangeText={setPassword} placeholder="123456" secureTextEntry />
+        <Text style={styles.logo}>
+          Ford
+        </Text>
 
-          {error ? <Text style={styles.error}>{error}</Text> : null}
+        <Text style={styles.title}>
+          Specs Intelligence
+        </Text>
 
-          <PrimaryButton title={isRegistering ? 'Cadastrar e entrar' : 'Entrar com JWT'} onPress={submit} loading={loading} />
+        <Text style={styles.subtitle}>
+          Login integrado com API REST Spring Boot usando autenticação JWT.
+        </Text>
 
-          <TouchableOpacity onPress={() => setIsRegistering((current) => !current)}>
-            <Text style={styles.switchText}>{isRegistering ? 'Já tenho conta. Fazer login.' : 'Criar nova conta na API.'}</Text>
-          </TouchableOpacity>
+      </View>
 
-          <Text style={styles.helper}>A API precisa estar rodando em http://192.168.15.3:8080</Text>
-        </Card>
-      </KeyboardAvoidingView>
-    </LinearGradient>
+      <View style={styles.card}>
+
+        {isRegisterMode && (
+          <>
+            <Text style={styles.label}>
+              Nome
+            </Text>
+
+            <TextInput
+              style={styles.input}
+              value={nome}
+              onChangeText={setNome}
+              placeholder="Nome do analista"
+              placeholderTextColor="#9AA5B1"
+            />
+          </>
+        )}
+
+        <Text style={styles.label}>
+          E-mail
+        </Text>
+
+        <TextInput
+          style={styles.input}
+          value={email}
+          onChangeText={setEmail}
+          placeholder="Digite seu e-mail"
+          placeholderTextColor="#9AA5B1"
+          autoCapitalize="none"
+        />
+
+        <Text style={styles.label}>
+          Senha
+        </Text>
+
+        <TextInput
+          style={styles.input}
+          value={senha}
+          onChangeText={setSenha}
+          placeholder="Digite sua senha"
+          placeholderTextColor="#9AA5B1"
+          secureTextEntry
+        />
+
+        {erro ? (
+          <Text style={styles.errorText}>
+            {erro}
+          </Text>
+        ) : null}
+
+        <TouchableOpacity
+          style={styles.button}
+          onPress={handleSubmit}
+          disabled={loading}
+        >
+
+          {loading ? (
+            <ActivityIndicator color="#FFFFFF" />
+          ) : (
+            <Text style={styles.buttonText}>
+              {isRegisterMode
+                ? 'Cadastrar e entrar'
+                : 'Entrar com JWT'}
+            </Text>
+          )}
+
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          style={styles.switchButton}
+          onPress={() =>
+            setIsRegisterMode(!isRegisterMode)
+          }
+        >
+
+          <Text style={styles.switchText}>
+            {isRegisterMode
+              ? 'Já tenho conta. Fazer login.'
+              : 'Criar nova conta na API.'}
+          </Text>
+
+        </TouchableOpacity>
+
+        <Text style={styles.footer}>
+          A API precisa estar rodando em http://localhost:8080
+        </Text>
+
+      </View>
+
+    </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
-  screen: { flex: 1 },
-  center: { flex: 1, justifyContent: 'center', padding: 22 },
-  logo: { color: colors.white, fontSize: 48, fontWeight: '900', fontStyle: 'italic', textAlign: 'center' },
-  title: { color: colors.white, fontSize: 30, fontWeight: '900', textAlign: 'center', marginTop: 8 },
-  subtitle: { color: '#CFE4FF', textAlign: 'center', lineHeight: 21, marginVertical: 18 },
-  card: { padding: 20 },
-  error: { color: colors.danger, fontWeight: '700', marginBottom: 12, lineHeight: 19 },
-  switchText: { color: colors.primary, textAlign: 'center', fontWeight: '900', marginTop: 14 },
-  helper: { color: colors.muted, textAlign: 'center', marginTop: 12, fontSize: 12, lineHeight: 17 }
+
+  screen: {
+    flex: 1,
+    backgroundColor: '#071E3D'
+  },
+
+  content: {
+    flexGrow: 1,
+    justifyContent: 'center',
+    padding: 20
+  },
+
+  header: {
+    alignItems: 'center',
+    marginBottom: 24
+  },
+
+  logo: {
+    color: '#FFFFFF',
+    fontSize: 52,
+    fontWeight: '900',
+    fontStyle: 'italic'
+  },
+
+  title: {
+    color: '#FFFFFF',
+    fontSize: 34,
+    fontWeight: '900',
+    marginTop: 4
+  },
+
+  subtitle: {
+    color: '#D7E7FF',
+    textAlign: 'center',
+    marginTop: 12,
+    lineHeight: 22
+  },
+
+  card: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 22,
+    padding: 22
+  },
+
+  label: {
+    color: '#172033',
+    fontWeight: '900',
+    marginBottom: 8
+  },
+
+  input: {
+    backgroundColor: '#F8FAFD',
+    borderWidth: 1,
+    borderColor: '#DDE6F2',
+    borderRadius: 14,
+    padding: 15,
+    marginBottom: 16,
+    color: '#172033'
+  },
+
+  button: {
+    backgroundColor: '#2D9CDB',
+    borderRadius: 14,
+    padding: 16,
+    alignItems: 'center',
+    marginTop: 6
+  },
+
+  buttonText: {
+    color: '#FFFFFF',
+    fontWeight: '900',
+    fontSize: 16
+  },
+
+  switchButton: {
+    marginTop: 18,
+    alignItems: 'center'
+  },
+
+  switchText: {
+    color: '#071E3D',
+    fontWeight: '900'
+  },
+
+  footer: {
+    marginTop: 16,
+    textAlign: 'center',
+    color: '#7B8794',
+    fontSize: 12
+  },
+
+  errorText: {
+    color: '#D62828',
+    fontWeight: '800',
+    marginBottom: 10
+  }
 });
