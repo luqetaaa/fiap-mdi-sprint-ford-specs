@@ -18,26 +18,37 @@ export const api = axios.create({
 
 api.interceptors.request.use(
   async (config) => {
+
     try {
-      const token = await AsyncStorage.getItem(STORAGE_KEYS.TOKEN);
+
+      const token = await AsyncStorage.getItem(
+        STORAGE_KEYS.TOKEN
+      );
 
       if (token) {
-        config.headers.Authorization = Bearer ${token};
+        config.headers.Authorization =
+          'Bearer ' + token;
       }
 
       return config;
+
     } catch (error) {
+
       return config;
     }
   },
+
   (error) => Promise.reject(error)
 );
 
 api.interceptors.response.use(
+
   (response) => response,
+
   async (error) => {
 
     if (error?.response?.status === 401) {
+
       await AsyncStorage.multiRemove([
         STORAGE_KEYS.TOKEN,
         STORAGE_KEYS.USER
@@ -63,20 +74,20 @@ export function getApiErrorMessage(error) {
   }
 
   if (error?.response?.status === 403) {
-    return 'Você não possui permissão para acessar este recurso.';
+    return 'Acesso negado.';
   }
 
   if (error?.response?.status === 404) {
-    return 'Recurso não encontrado na API.';
+    return 'Endpoint não encontrado.';
   }
 
   if (error?.message?.includes('Network Error')) {
-    return 'Falha de conexão com o servidor.';
+    return 'Falha ao conectar na API.';
   }
 
   if (error?.code === 'ECONNABORTED') {
-    return 'A API demorou muito para responder.';
+    return 'Tempo de conexão excedido.';
   }
 
-  return 'Erro inesperado na comunicação com a API.';
+  return 'Erro inesperado ao comunicar com a API.';
 }
