@@ -184,54 +184,6 @@ Com mais tempo, implementaríamos:
 - Painel administrativo para cadastro de novas fontes.
 - Ranking de confiabilidade por fonte.
 
-## Sugestão de commits por integrante
-
-Para evitar desconto por colaboração, cada integrante deve fazer commits reais e descritivos:
-
-Lucas:
-
-```bash
-git commit -m "cria estrutura inicial do app Expo e navegação principal"
-git commit -m "implementa fluxo de pesquisa e geração de ficha técnica"
-```
-
-Victor:
-
-```bash
-git commit -m "adiciona componentes visuais reutilizáveis do aplicativo"
-git commit -m "melhora interface da home e tela de login"
-```
-
-Felipe:
-
-```bash
-git commit -m "cria base de dados técnica dos veículos"
-git commit -m "implementa normalização dos atributos técnicos"
-```
-
-Djalma:
-
-```bash
-git commit -m "implementa histórico de pesquisas com AsyncStorage"
-git commit -m "adiciona tratamento de campos não disponíveis"
-```
-
-Matheus:
-
-```bash
-git commit -m "implementa comparador técnico entre veículos"
-git commit -m "documenta execução, prints e decisões técnicas no README"
-```
-
-## Roteiro do vídeo
-
-O roteiro de apresentação está em:
-
-```txt
-docs/roteiro-video.md
-```
-
-
 ## Atualização FULL do catálogo
 
 Esta versão foi ampliada para funcionar como uma entrega final da sprint:
@@ -244,3 +196,34 @@ Esta versão foi ampliada para funcionar como uma entrega final da sprint:
 - Comparador usando a mesma base técnica.
 
 Observação: os dados são uma base demonstrativa para a sprint acadêmica. A arquitetura foi preparada para trocar essa base por API, scraping validado ou camada de IA/LLM em uma etapa futura.
+
+
+---
+
+# Integração com API REST
+
+A aplicação consome a API Java Spring Boot do projeto Ford Competitive API.
+
+Base URL utilizada no app:
+
+```txt
+http://192.168.15.3:8080
+```
+
+Endpoints integrados:
+
+- `POST /auth/login`
+- `POST /auth/register`
+- `GET /vehicles`
+- `POST /vehicles/search`
+- `GET /specifications/{vehicleId}`
+- `GET /searches/history`
+
+Fluxo de autenticação:
+
+1. O usuário faz login no app.
+2. A API retorna um `accessToken`.
+3. O app salva o token com AsyncStorage.
+4. O Axios envia automaticamente o header `Authorization: Bearer TOKEN`.
+
+Para testar no celular, o PC e o celular precisam estar na mesma rede Wi-Fi. Não use `localhost` no app mobile.
