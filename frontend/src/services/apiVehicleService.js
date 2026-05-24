@@ -23,7 +23,7 @@ export async function getVehicles() {
 }
 
 export async function getVehicleById(id) {
-  const response = await api.get(/vehicles/${id});
+  const response = await api.get('/vehicles/' + id);
   return normalizeVehicle(response.data);
 }
 
@@ -51,7 +51,7 @@ export async function searchVehicle({
 }
 
 export async function getSpecifications(vehicleId) {
-  const response = await api.get(/specifications/${vehicleId});
+  const response = await api.get('/specifications/' + vehicleId);
   return normalizeSpecifications(response.data);
 }
 
