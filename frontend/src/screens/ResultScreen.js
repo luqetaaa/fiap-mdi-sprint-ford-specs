@@ -1,3 +1,5 @@
+import React, { useMemo } from 'react';
+
 import {
   ScrollView,
   Text,
@@ -27,10 +29,7 @@ export default function ResultScreen({
   const shareText = useMemo(() => {
 
     return technicalRows
-      .map(
-        (row) =>
-          ${row.label}: ${row.value}
-      )
+      .map((row) => row.label + ': ' + row.value)
       .join('\n');
 
   }, [technicalRows]);
