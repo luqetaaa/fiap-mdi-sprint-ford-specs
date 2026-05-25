@@ -501,6 +501,10 @@ Projeto acadêmico sem fins comerciais.
 
 <img width="1719" height="909" alt="image" src="https://github.com/user-attachments/assets/af9bd636-d3b6-4cb0-b0c0-5fc0e1bfd21b" />
 
+# Ficha Técnica
+
+<img width="1718" height="910" alt="image" src="https://github.com/user-attachments/assets/a758dc0c-ba52-46e3-b441-2f7eebd63d11" />
+
 # Histórico
 
 <img width="1719" height="908" alt="image" src="https://github.com/user-attachments/assets/24edcb34-36d8-4c8f-8fcd-333d722ffcea" />
