@@ -1,229 +1,516 @@
-# Ford Specs Intelligence
+# Ford Specs Intelligence + Ford Competitive Intelligence API
 
-Aplicação mobile desenvolvida para a Sprint **Mobile Development and IoT — Ford x FIAP**.
+Aplicação fullstack desenvolvida para a Sprint Mobile Development and IoT + SOA & Web Services — Ford x FIAP.
 
-## Sobre o projeto
+---
 
-O **Ford Specs Intelligence** responde ao **Desafio 01 — Inteligência Competitiva Automotiva**.
+# Sobre o Projeto
 
-A proposta é reduzir o trabalho manual de pesquisa técnica de veículos concorrentes. O usuário informa **marca, modelo, versão** e escolhe livremente os atributos que deseja pesquisar. O app retorna uma ficha técnica sempre no mesmo padrão, com campos organizados, comparáveis e com indicação explícita quando uma informação não está disponível.
+O Ford Specs Intelligence responde ao desafio de Inteligência Competitiva Automotiva proposto pela Ford.
 
-## Por que escolhemos esse desafio?
+A solução automatiza a pesquisa e padronização de especificações técnicas automotivas através de:
 
-Escolhemos o Desafio 01 porque ele resolve uma dor real de análise competitiva: pesquisas manuais em sites, PDFs, vídeos e portais automotivos consomem tempo, podem gerar inconsistência e dificultam a comparação entre versões de veículos.
+- aplicação mobile React Native
+- API REST Spring Boot
+- autenticação JWT
+- persistência em PostgreSQL
+- arquitetura preparada para IA e integração futura
 
-## Funcionalidades implementadas
+A proposta reduz o trabalho manual de análise competitiva em sites, PDFs e portais automotivos, retornando uma ficha técnica padronizada e comparável.
 
-- Login demonstrativo para acesso ao app.
-- Home com resumo do problema, proposta de valor e validação com Ranger Raptor.
-- Pesquisa por marca, modelo e versão.
-- Seleção livre de atributos técnicos por categorias.
-- Geração de ficha técnica padronizada.
-- Tratamento de campos ausentes com “Não disponível”.
-- Indicador de cobertura dos campos encontrados.
-- Indicador de confiança da fonte/base.
-- Histórico persistente de pesquisas com AsyncStorage.
-- Comparador técnico entre veículos.
-- Tela sobre o projeto, integrantes, arquitetura e próximos passos.
-- Feedback visual de loading durante a geração da ficha.
-- Compartilhamento do resultado gerado.
+---
 
-## Integrantes do grupo
+# Objetivo da Solução
 
-- Lucas Rodrigues de Queiroz — RM556323
-- Victor Hugo de Paula — RM554787
-- Felipe Paes de Barros Muller Carioba — RM558447
-- Djalma Moreira de Andrade Filho — RM555530
-- Matheus Gushi Morioka — RM556935
+O sistema permite que usuários:
 
-## Tecnologias utilizadas
+- pesquisem veículos Ford
+- selecionem atributos técnicos específicos
+- gerem fichas técnicas padronizadas
+- comparem informações automotivas
+- armazenem histórico de pesquisas
+- compartilhem resultados
+
+Tudo integrado a uma API REST segura com JWT.
+
+---
+
+# Integrantes do Grupo
+
+| Nome | RM |
+|---|---|
+| Lucas Rodrigues de Queiroz | RM556323 |
+| Victor Hugo de Paula | RM554787 |
+| Felipe Paes de Barros Muller Carioba | RM558447 |
+| Djalma Moreira de Andrade Filho | RM555530 |
+| Matheus Gushi Morioka | RM556935 |
+
+---
+
+# Tecnologias Utilizadas
+
+## Frontend
 
 - React Native
 - Expo
 - React Navigation
+- Axios
 - AsyncStorage
 - Expo Linear Gradient
 - Expo Vector Icons
 - JavaScript
 
-## Como rodar o projeto
+---
 
-### Pré-requisitos
+## Backend
 
-Instale antes:
+- Java 21
+- Spring Boot
+- Spring Security
+- JWT Authentication
+- Spring Data JPA
+- Hibernate
+- PostgreSQL
+- Swagger/OpenAPI
+- Maven
 
+---
+
+# Arquitetura da Aplicação
+
+```txt
+React Native App
+        ↓
+Spring Boot REST API
+        ↓
+JWT Authentication
+        ↓
+Controllers
+        ↓
+Services
+        ↓
+Repositories
+        ↓
+PostgreSQL Database
+```
+
+---
+
+# Estrutura do Projeto
+
+```txt
+fiap-mdi-sprint-ford-specs
+│
+├── backend
+│
+├── frontend
+│
+└── README.md
+```
+
+---
+
+# Estrutura Frontend
+
+```txt
+src/
+  components/
+  data/
+  hooks/
+  navigation/
+  screens/
+  services/
+  storage/
+  theme/
+  utils/
+```
+
+---
+
+# Estrutura Backend
+
+```txt
+src/main/java/com/fordchallenge/ford_competitive_api
+
+├── auth
+├── common
+├── config
+├── searches
+├── security
+├── specifications
+├── users
+└── vehicles
+```
+
+---
+
+# Funcionalidades Implementadas
+
+## Frontend
+
+- Login e cadastro
+- Integração com API REST
+- Pesquisa de veículos Ford
+- Seleção de atributos técnicos
+- Geração de ficha técnica
+- Compartilhamento de resultado
+- Histórico persistente
+- Comparador técnico
+- Loading e feedback visual
+
+---
+
+## Backend
+
+- API REST Spring Boot
+- Autenticação JWT
+- Persistência PostgreSQL
+- Histórico de pesquisas
+- Busca de veículos
+- Especificações técnicas
+- Swagger/OpenAPI
+- Arquitetura em camadas
+- DTO Pattern
+- Repository Pattern
+
+---
+
+# Banco de Dados
+
+## Tabelas
+
+### users
+- usuários autenticados
+
+### vehicles
+- veículos cadastrados
+
+### vehicle_specs
+- especificações técnicas
+
+### search_history
+- histórico de pesquisas
+
+---
+
+# Como Rodar o Projeto
+
+# Pré-requisitos
+
+Instalar:
+
+- Java JDK 21
+- IntelliJ IDEA
+- PostgreSQL
 - Node.js LTS
-- Expo Go no celular
 - Git
-- VS Code, opcional
+- Expo Go
+- VS Code
 
-### Passo a passo
+---
 
-Clone o repositório:
-
-```bash
-git clone https://github.com/SEU-USUARIO/fiap-mdi-sprint-ford-specs.git
-```
-
-Entre na pasta:
+# 1. Clonar Repositório
 
 ```bash
-cd fiap-mdi-sprint-ford-specs
+git clone LINK_DO_REPOSITORIO
 ```
 
-Instale as dependências:
+---
+
+# 2. Criar Banco PostgreSQL
+
+Abrir pgAdmin 4.
+
+Criar database:
+
+```sql
+CREATE DATABASE ford_challenge;
+```
+
+---
+
+# 3. Rodar Backend
+
+Abrir pasta:
+
+```txt
+backend
+```
+
+no IntelliJ IDEA.
+
+---
+
+## Configurar application.properties
+
+Arquivo:
+
+```txt
+src/main/resources/application.properties
+```
+
+Configuração:
+
+```properties
+spring.application.name=ford-competitive-api
+
+spring.datasource.url=jdbc:postgresql://localhost:5432/ford_challenge
+spring.datasource.username=postgres
+spring.datasource.password=SUA_SENHA
+
+spring.jpa.hibernate.ddl-auto=update
+spring.jpa.show-sql=true
+spring.jpa.properties.hibernate.format_sql=true
+
+server.port=8080
+server.address=0.0.0.0
+```
+
+---
+
+## Rodar aplicação
+
+Executar:
+
+```txt
+FordCompetitiveApiApplication.java
+```
+
+Se aparecer:
+
+```txt
+Started FordCompetitiveApiApplication
+```
+
+a API estará funcionando.
+
+---
+
+# 4. Swagger/OpenAPI
+
+Abrir:
+
+```txt
+http://localhost:8080/swagger-ui/index.html
+```
+
+Endpoints disponíveis:
+
+- POST /auth/login
+- POST /auth/register
+- GET /vehicles
+- POST /vehicles/search
+- GET /specifications/{vehicleId}
+- GET /searches/history
+
+---
+
+# 5. Rodar Frontend
+
+Abrir pasta:
+
+```txt
+frontend
+```
+
+no VS Code.
+
+---
+
+## Instalar dependências
 
 ```bash
 npm install
 ```
 
-Execute o projeto:
+---
+
+## Rodar Expo
 
 ```bash
-npx expo start
+npx expo start --clear
 ```
 
-Depois disso:
+---
 
-- No celular, abra o Expo Go e leia o QR Code.
-- No navegador, pressione `w` no terminal.
-- No Android Studio, pressione `a` se tiver emulador configurado.
+## Abrir aplicação
 
-## Login de teste
+No terminal:
 
 ```txt
-E-mail: analista@ford.com
+Pressione W
+```
+
+para abrir no navegador.
+
+Ou utilize Expo Go no celular.
+
+---
+
+# Configuração da API no Mobile
+
+Arquivo:
+
+```txt
+src/services/apiClient.js
+```
+
+## Navegador/Web
+
+```javascript
+export const API_BASE_URL = 'http://localhost:8080';
+```
+
+## Celular
+
+Utilizar IP do computador:
+
+```javascript
+export const API_BASE_URL = 'http://192.168.X.X:8080';
+```
+
+PC e celular devem estar na mesma rede Wi-Fi.
+
+---
+
+# Login de Teste
+
+```txt
+E-mail: victor@test.com
 Senha: 123456
 ```
 
-## Fluxo principal de uso
+---
 
-1. Entrar no app.
-2. Acessar a tela **Pesquisa**.
-3. Manter o caso de teste Ford Ranger Raptor ou digitar outro veículo.
-4. Selecionar atributos técnicos.
-5. Clicar em **Gerar ficha técnica padronizada**.
-6. Ver a ficha com cobertura, confiança e campos comparáveis.
-7. Conferir o histórico ou usar o comparador.
+# Fluxo Principal da Aplicação
 
-## Demonstração visual
+1. Usuário realiza login
+2. API retorna JWT
+3. App salva token com AsyncStorage
+4. Usuário seleciona:
+   - modelo
+   - ano
+   - versão
+   - atributos técnicos
+5. API retorna ficha técnica padronizada
+6. Resultado pode ser compartilhado
+7. Histórico é salvo localmente
 
-Coloque aqui os prints após rodar o app:
+---
+
+# Autenticação JWT
+
+## Login
+
+Endpoint:
+
+```http
+POST /auth/login
+```
+
+Body:
+
+```json
+{
+  "email": "victor@test.com",
+  "senha": "123456"
+}
+```
+
+Resposta:
+
+```json
+{
+  "accessToken": "TOKEN_JWT",
+  "tokenType": "Bearer"
+}
+```
+
+---
+
+# Consumo de Rotas Protegidas
+
+Header:
+
+```http
+Authorization: Bearer TOKEN_JWT
+```
+
+---
+
+# Funcionalidades Futuras
+
+A arquitetura foi preparada para futuras integrações:
+
+- IA Generativa
+- Google Dorking
+- Web Scraping
+- APIs automotivas reais
+- Exportação PDF
+- Machine Learning
+- Docker
+- Deploy Cloud
+- Cache
+- Logs avançados
+- Microserviços
+
+---
+
+# Observação Acadêmica
+
+Este projeto foi desenvolvido para fins acadêmicos na FIAP em parceria com a Ford.
+
+As funcionalidades de IA e scraping permanecem preparadas arquiteturalmente para futuras sprints.
+
+---
+
+# Demonstração Visual
+
+Adicionar prints do projeto:
 
 | Tela | Print |
 |---|---|
-| Login | `assets/screenshots/login.png` |
-| Home | `assets/screenshots/home.png` |
-| Pesquisa | `assets/screenshots/search.png` |
-| Resultado | `assets/screenshots/result.png` |
-| Histórico | `assets/screenshots/history.png` |
-| Comparador | `assets/screenshots/compare.png` |
-| Sobre | `assets/screenshots/about.png` |
+| Login | assets/screenshots/login.png |
+| Pesquisa | assets/screenshots/search.png |
+| Resultado | assets/screenshots/result.png |
+| Histórico | assets/screenshots/history.png |
 
-Também adicione um GIF ou vídeo do fluxo principal:
+Adicionar GIF/vídeo:
 
 ```txt
 assets/demo/fluxo-principal.gif
 ```
 
-> Importante: o enunciado exige prints de todas as telas e GIF/vídeo do fluxo principal. Antes da entrega, capture as imagens reais do app rodando e coloque nesta seção.
-
-## Decisões técnicas
-
-### Stack
-
-A stack escolhida foi **React Native com Expo**, pois é a tecnologia recomendada no desafio e permite entregar uma experiência mobile fluida em iOS e Android.
-
-### Estrutura do projeto
-
-```txt
-src/
-  components/     Componentes reutilizáveis
-  data/           Base simulada de veículos e atributos
-  hooks/          Contexto global do app
-  navigation/     Navegação por stack e abas
-  screens/        Telas principais
-  services/       Regra de busca, normalização e comparação
-  storage/        Persistência local
-  theme/          Cores e padrões visuais
-  utils/          Funções auxiliares
-```
-
-### Integração externa / fonte de dados
-
-Nesta versão acadêmica, a integração foi representada por uma base JSON estruturada em `src/data/vehicleSpecs.js`, simulando a resposta de uma API automotiva ou de uma camada de IA/crawler.
-
-A arquitetura foi separada para permitir que, no futuro, o arquivo local seja substituído por:
-
-- API automotiva real;
-- crawler em fontes aprovadas;
-- extração de PDFs técnicos;
-- LLM para padronização em JSON.
-
-### Persistência
-
-O histórico de pesquisas é salvo localmente com **AsyncStorage**, permitindo que o usuário volte às fichas geradas mesmo depois de navegar entre telas.
-
-### Padronização dos campos
-
-A saída é montada pela função `buildStandardSpecs`. Todos os campos selecionados são retornados no mesmo formato. Quando uma informação não existe, o valor exibido é **Não disponível**.
-
-## Caso de validação
-
-O app inclui a **Ford Ranger Raptor** como caso principal de validação, com os principais dados técnicos necessários para demonstrar a operação da solução.
-
-## Próximos passos
-
-Com mais tempo, implementaríamos:
-
-- Consumo de API automotiva real.
-- Web scraping controlado em sites autorizados.
-- Integração com IA generativa para transformar textos técnicos em JSON.
-- Exportação da ficha técnica em PDF.
-- Login real com Firebase.
-- Painel administrativo para cadastro de novas fontes.
-- Ranking de confiabilidade por fonte.
-
-## Atualização FULL do catálogo
-
-Esta versão foi ampliada para funcionar como uma entrega final da sprint:
-
-- Marca travada em Ford na tela de pesquisa.
-- Seleção de modelo e versão por botões, evitando erro de digitação.
-- Base demonstrativa com mais de 20 versões Ford.
-- Especificações preenchidas no mesmo padrão para todos os veículos.
-- Tratamento padronizado de campos não aplicáveis, como caçamba em SUVs ou ângulo off-road em sedãs.
-- Comparador usando a mesma base técnica.
-
-Observação: os dados são uma base demonstrativa para a sprint acadêmica. A arquitetura foi preparada para trocar essa base por API, scraping validado ou camada de IA/LLM em uma etapa futura.
-
-
 ---
 
-# Integração com API REST
+# Licença
 
-A aplicação consome a API Java Spring Boot do projeto Ford Competitive API.
+Projeto acadêmico sem fins comerciais.
 
-Base URL utilizada no app:
+# Prints do App
 
-```txt
-http://192.168.15.3:8080
-```
+# Login
 
-Endpoints integrados:
+<img width="3836" height="1904" alt="image" src="https://github.com/user-attachments/assets/1b533e19-87ad-4dbc-bb2a-f6001d7ae4ed" />
 
-- `POST /auth/login`
-- `POST /auth/register`
-- `GET /vehicles`
-- `POST /vehicles/search`
-- `GET /specifications/{vehicleId}`
-- `GET /searches/history`
+# Início
 
-Fluxo de autenticação:
+<img width="1717" height="910" alt="image" src="https://github.com/user-attachments/assets/3f09ef73-ee65-4783-b8d9-12721ee3b81b" />
 
-1. O usuário faz login no app.
-2. A API retorna um `accessToken`.
-3. O app salva o token com AsyncStorage.
-4. O Axios envia automaticamente o header `Authorization: Bearer TOKEN`.
+# Pesquisa
 
-Para testar no celular, o PC e o celular precisam estar na mesma rede Wi-Fi. Não use `localhost` no app mobile.
+<img width="1719" height="909" alt="image" src="https://github.com/user-attachments/assets/af9bd636-d3b6-4cb0-b0c0-5fc0e1bfd21b" />
+
+# Histórico
+
+<img width="1719" height="908" alt="image" src="https://github.com/user-attachments/assets/24edcb34-36d8-4c8f-8fcd-333d722ffcea" />
+
+
+# Comparar
+
+<img width="1718" height="910" alt="image" src="https://github.com/user-attachments/assets/62ea6171-144b-41e9-8913-bfac58683ed5" />
+
+
+# Sobre
+
+<img width="1718" height="911" alt="image" src="https://github.com/user-attachments/assets/efefadfb-0f40-40f3-addc-086b5cf96ecd" />
