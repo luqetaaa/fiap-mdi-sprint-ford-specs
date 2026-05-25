@@ -9,232 +9,205 @@ import {
   Share
 } from 'react-native';
 
-export default function ResultScreen({
-  route,
-  navigation
-}) {
+import AppHeader from '../components/AppHeader';
+import Card from '../components/Card';
+import SpecRow from '../components/SpecRow';
+import PrimaryButton from '../components/PrimaryButton';
+import KpiCard from '../components/KpiCard';
 
-  const vehicle =
-    route.params?.vehicle;
+import { colors } from '../theme/colors';
+import { formatDateTime } from '../utils/formatters';
 
-  const specs =
-    route.params?.specs;
+export default function ResultScreen({ route, navigation }) {
+  const item = route.params?.item || {};
+  const result = item?.result || {};
+  const params = item?.params || {};
+  const vehicle = result?.vehicle || params || {};
 
-  const technicalRows =
-    route.params?.technicalRows || [];
+  const rows = result?.rows || [];
+  const generatedAt = result?.generatedAt || new Date().toISOString();
+  const source = result?.source || 'API Ford Competitive';
+  const confidence = result?.confidence || 95;
 
-  const coverage =
-    route.params?.coverage || 0;
+  const title = useMemo(() => {
+    const marca = vehicle?.marca || params?.marca || 'Ford';
+    const modelo = vehicle?.modelo || params?.modelo || 'Veículo consultado';
+    const versao = vehicle?.versao || params?.versao || '';
+
+    return `${marca} ${modelo}${versao ? ' ' + versao : ''}`;
+  }, [vehicle, params]);
+
+  const coverage = useMemo(() => {
+    if (result?.coverage !== undefined && result?.coverage !== null) {
+      return result.coverage;
+    }
+
+    if (!rows.length) {
+      return 0;
+    }
+
+    const available = rows.filter(
+      (row) =>
+        row.available !== false &&
+        row.value &&
+        row.value !== 'Não disponível'
+    ).length;
+
+    return Math.round((available / rows.length) * 100);
+  }, [result, rows]);
 
   const shareText = useMemo(() => {
-
-    return technicalRows
-      .map((row) => row.label + ': ' + row.value)
-      .join('\n');
-
-  }, [technicalRows]);
+    return [
+      title,
+      ...rows.map((row) => row.label + ': ' + row.value)
+    ].join('\n');
+  }, [title, rows]);
 
   async function handleShare() {
-
     try {
-
       await Share.share({
         message: shareText
       });
-
     } catch (error) {}
   }
 
   return (
-    <ScrollView
-      style={styles.screen}
-      contentContainerStyle={styles.content}
-      showsVerticalScrollIndicator={false}
-    >
+    <View style={styles.screen}>
+      <AppHeader
+        title="Ficha técnica"
+        subtitle="Resultado padronizado para comparação competitiva."
+      />
 
-      <Text style={styles.title}>
-        Ficha Técnica
-      </Text>
-
-      <Text style={styles.subtitle}>
-        Resultado padronizado gerado pela API Ford Competitive Intelligence.
-      </Text>
-
-      <View style={styles.highlightCard}>
-
-        <Text style={styles.vehicleTitle}>
-          {vehicle?.marca} {vehicle?.modelo}
-        </Text>
-
-        <Text style={styles.vehicleSubtitle}>
-          {vehicle?.versao} • {vehicle?.ano}
-        </Text>
-
-        <View style={styles.coverageBadge}>
-          <Text style={styles.coverageText}>
-            Cobertura da ficha: {coverage}%
+      <ScrollView
+        contentContainerStyle={styles.content}
+        showsVerticalScrollIndicator={false}
+      >
+        <Card>
+          <Text style={styles.vehicleTitle}>
+            {title}
           </Text>
+
+          <Text style={styles.meta}>
+            Gerado em {formatDateTime(generatedAt)}
+          </Text>
+
+          <Text style={styles.source}>
+            Fonte: {source}
+          </Text>
+        </Card>
+
+        <View style={styles.kpiRow}>
+          <KpiCard
+            value={coverage + '%'}
+            label="cobertura"
+            hint="campos preenchidos"
+          />
+
+          <KpiCard
+            value={confidence + '%'}
+            label="confiança"
+            hint="fonte/base"
+          />
         </View>
 
-      </View>
+        <Card>
+          <Text style={styles.sectionTitle}>
+            Atributos selecionados
+          </Text>
 
-      <View style={styles.specificationsCard}>
-
-        {technicalRows.map((item) => (
-
-          <View
-            key={item.label}
-            style={styles.row}
-          >
-
-            <Text style={styles.label}>
-              {item.label}
+          {rows.length > 0 ? (
+            rows.map((row) => (
+              <SpecRow
+                key={row.key || row.label}
+                label={row.label}
+                value={row.value || 'Não disponível'}
+                available={row.available}
+              />
+            ))
+          ) : (
+            <Text style={styles.empty}>
+              Nenhum atributo foi retornado para esta pesquisa.
             </Text>
+          )}
+        </Card>
 
-            <Text style={styles.value}>
-              {item.value || 'Não disponível'}
-            </Text>
+        <PrimaryButton
+          title="Compartilhar ficha"
+          onPress={handleShare}
+        />
 
-          </View>
-
-        ))}
-
-      </View>
-
-      <TouchableOpacity
-        style={styles.primaryButton}
-        onPress={handleShare}
-      >
-
-        <Text style={styles.primaryButtonText}>
-          Compartilhar ficha
-        </Text>
-
-      </TouchableOpacity>
-
-      <TouchableOpacity
-        style={styles.secondaryButton}
-        onPress={() => navigation.goBack()}
-      >
-
-        <Text style={styles.secondaryButtonText}>
-          Nova pesquisa
-        </Text>
-
-      </TouchableOpacity>
-
-    </ScrollView>
+        <TouchableOpacity
+          style={styles.secondaryButton}
+          onPress={() => navigation.goBack()}
+        >
+          <Text style={styles.secondaryButtonText}>
+            Nova pesquisa
+          </Text>
+        </TouchableOpacity>
+      </ScrollView>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-
   screen: {
     flex: 1,
-    backgroundColor: '#EEF3F8'
+    backgroundColor: colors.background
   },
 
   content: {
-    padding: 18,
-    paddingBottom: 40
-  },
-
-  title: {
-    fontSize: 28,
-    fontWeight: '900',
-    color: '#071E3D'
-  },
-
-  subtitle: {
-    marginTop: 8,
-    color: '#5F6B7A',
-    lineHeight: 21,
-    marginBottom: 18
-  },
-
-  highlightCard: {
-    backgroundColor: '#071E3D',
-    borderRadius: 20,
-    padding: 20,
-    marginBottom: 18
+    padding: 16,
+    paddingBottom: 90
   },
 
   vehicleTitle: {
-    color: '#FFFFFF',
-    fontSize: 24,
-    fontWeight: '900'
+    color: colors.text,
+    fontSize: 22,
+    fontWeight: '900',
+    marginBottom: 6
   },
 
-  vehicleSubtitle: {
-    color: '#D7E7FF',
-    marginTop: 6,
+  meta: {
+    color: colors.muted,
+    fontWeight: '700',
+    marginBottom: 6
+  },
+
+  source: {
+    color: colors.muted,
+    lineHeight: 20
+  },
+
+  kpiRow: {
+    flexDirection: 'row',
+    gap: 12,
     marginBottom: 14
   },
 
-  coverageBadge: {
-    alignSelf: 'flex-start',
-    backgroundColor: '#2D9CDB',
-    paddingHorizontal: 14,
-    paddingVertical: 8,
-    borderRadius: 999
-  },
-
-  coverageText: {
-    color: '#FFFFFF',
-    fontWeight: '900'
-  },
-
-  specificationsCard: {
-    backgroundColor: '#FFFFFF',
-    borderRadius: 20,
-    paddingHorizontal: 18,
-    borderWidth: 1,
-    borderColor: '#DDE6F2'
-  },
-
-  row: {
-    paddingVertical: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: '#E5EAF0'
-  },
-
-  label: {
-    color: '#5F6B7A',
-    fontWeight: '800',
-    marginBottom: 5
-  },
-
-  value: {
-    color: '#172033',
+  sectionTitle: {
+    fontSize: 18,
     fontWeight: '900',
-    lineHeight: 21
+    color: colors.text,
+    marginBottom: 12
   },
 
-  primaryButton: {
-    backgroundColor: '#071E3D',
-    borderRadius: 14,
-    padding: 16,
-    alignItems: 'center',
-    marginTop: 18
-  },
-
-  primaryButtonText: {
-    color: '#FFFFFF',
-    fontWeight: '900'
+  empty: {
+    color: colors.muted,
+    lineHeight: 20
   },
 
   secondaryButton: {
     backgroundColor: '#FFFFFF',
     borderWidth: 1,
-    borderColor: '#DDE6F2',
+    borderColor: '#D7E0EC',
     borderRadius: 14,
-    padding: 16,
+    padding: 15,
     alignItems: 'center',
     marginTop: 10
   },
 
   secondaryButtonText: {
-    color: '#071E3D',
+    color: colors.text,
     fontWeight: '900'
   }
 });
