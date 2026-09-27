@@ -19,6 +19,12 @@
     "web": {
       "bundler": "metro"
     },
-    "icon": "./assets/icon.png"
+    "icon": "./assets/icon.png",
+    "extra": {
+      "eas": {
+        "projectId": "6908cc5e-bea2-4a4d-955b-ebc2e4755977"
+      }
+    },
+    "owner": "fiap-ford-specs"
   }
 }
