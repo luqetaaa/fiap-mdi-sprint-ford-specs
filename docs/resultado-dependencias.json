@@ -1,0 +1,47 @@
+{
+  "date": "2026-09-27",
+  "appVersion": "1.2.0",
+  "node": "24.19.0",
+  "expo": "57.0.25",
+  "reactNative": "0.86.3",
+  "react": "19.2.3",
+  "cleanInstall": {
+    "command": "npm ci",
+    "success": true,
+    "lifecycleScriptsEnabled": true
+  },
+  "npmAudit": {
+    "info": 0,
+    "low": 0,
+    "moderate": 0,
+    "high": 0,
+    "critical": 0,
+    "total": 0
+  },
+  "expoDoctor": {
+    "passed": 21,
+    "total": 21
+  },
+  "expoInstallCheck": {
+    "success": true,
+    "mode": "offline"
+  },
+  "export": {
+    "web": true,
+    "android": true,
+    "ios": true
+  },
+  "prebuild": {
+    "android": true,
+    "ios": true,
+    "isolatedCopy": true,
+    "nativeCompilation": false
+  },
+  "nativeApkBuilt": false,
+  "androidDeviceTested": false,
+  "override": {
+    "package": "xcode > uuid",
+    "version": "11.1.1",
+    "advisory": "GHSA-w5hq-g745-h8pq"
+  }
+}

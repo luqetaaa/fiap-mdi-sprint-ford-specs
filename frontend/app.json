@@ -2,12 +2,23 @@
   "expo": {
     "name": "Ford Specs Intelligence",
     "slug": "fiap-mdi-sprint-ford-specs",
-    "version": "1.0.0",
+    "version": "1.3.0",
     "orientation": "portrait",
     "userInterfaceStyle": "light",
-    "assetBundlePatterns": ["**/*"],
-    "ios": { "supportsTablet": true },
-    "android": { "adaptiveIcon": { "backgroundColor": "#0A2342" } },
-    "web": { "bundler": "metro" }
+    "ios": {
+      "supportsTablet": true
+    },
+    "android": {
+      "package": "br.com.fiap.fordspecs",
+      "versionCode": 4,
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#082A54"
+      }
+    },
+    "web": {
+      "bundler": "metro"
+    },
+    "icon": "./assets/icon.png"
   }
 }

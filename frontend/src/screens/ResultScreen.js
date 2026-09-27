@@ -1,213 +1,58 @@
-import React, { useMemo } from 'react';
-
-import {
-  ScrollView,
-  Text,
-  View,
-  StyleSheet,
-  TouchableOpacity,
-  Share
-} from 'react-native';
-
-import AppHeader from '../components/AppHeader';
+import React, { useState } from 'react';
+import { Text, View, Share, Platform, TouchableOpacity } from 'react-native';
+import Screen from '../components/Screen';
 import Card from '../components/Card';
 import SpecRow from '../components/SpecRow';
 import PrimaryButton from '../components/PrimaryButton';
-import KpiCard from '../components/KpiCard';
-
-import { colors } from '../theme/colors';
+import Feedback from '../components/Feedback';
+import { shareResult } from '../services/specsService';
 import { formatDateTime } from '../utils/formatters';
+import { colors } from '../theme/colors';
+import { layout } from '../theme/layout';
 
 export default function ResultScreen({ route, navigation }) {
-  const item = route.params?.item || {};
-  const result = item?.result || {};
-  const params = item?.params || {};
-  const vehicle = result?.vehicle || params || {};
-
-  const rows = result?.rows || [];
-  const generatedAt = result?.generatedAt || new Date().toISOString();
-  const source = result?.source || 'API Ford Competitive';
-  const confidence = result?.confidence || 95;
-
-  const title = useMemo(() => {
-    const marca = vehicle?.marca || params?.marca || 'Ford';
-    const modelo = vehicle?.modelo || params?.modelo || 'Veículo consultado';
-    const versao = vehicle?.versao || params?.versao || '';
-
-    return `${marca} ${modelo}${versao ? ' ' + versao : ''}`;
-  }, [vehicle, params]);
-
-  const coverage = useMemo(() => {
-    if (result?.coverage !== undefined && result?.coverage !== null) {
-      return result.coverage;
-    }
-
-    if (!rows.length) {
-      return 0;
-    }
-
-    const available = rows.filter(
-      (row) =>
-        row.available !== false &&
-        row.value &&
-        row.value !== 'Não disponível'
-    ).length;
-
-    return Math.round((available / rows.length) * 100);
-  }, [result, rows]);
-
-  const shareText = useMemo(() => {
-    return [
-      title,
-      ...rows.map((row) => row.label + ': ' + row.value)
-    ].join('\n');
-  }, [title, rows]);
-
-  async function handleShare() {
+  const item = route.params?.item;
+  const result = item?.result;
+  const [message, setMessage] = useState('');
+  const [sharing, setSharing] = useState(false);
+  if (!result?.vehicle) return <Screen title="Ficha técnica" back={() => navigation.goBack()}>
+    <Feedback message="Essa ficha não está disponível. Faça uma nova pesquisa." />
+  </Screen>;
+  const { vehicle, rows, coverage } = result;
+  const share = async () => {
+    setMessage(''); setSharing(true);
     try {
-      await Share.share({
-        message: shareText
-      });
-    } catch (error) {}
-  }
-
-  return (
-    <View style={styles.screen}>
-      <AppHeader
-        title="Ficha técnica"
-        subtitle="Resultado padronizado para comparação competitiva."
-      />
-
-      <ScrollView
-        contentContainerStyle={styles.content}
-        showsVerticalScrollIndicator={false}
-      >
-        <Card>
-          <Text style={styles.vehicleTitle}>
-            {title}
-          </Text>
-
-          <Text style={styles.meta}>
-            Gerado em {formatDateTime(generatedAt)}
-          </Text>
-
-          <Text style={styles.source}>
-            Fonte: {source}
-          </Text>
-        </Card>
-
-        <View style={styles.kpiRow}>
-          <KpiCard
-            value={coverage + '%'}
-            label="cobertura"
-            hint="campos preenchidos"
-          />
-
-          <KpiCard
-            value={confidence + '%'}
-            label="confiança"
-            hint="fonte/base"
-          />
-        </View>
-
-        <Card>
-          <Text style={styles.sectionTitle}>
-            Atributos selecionados
-          </Text>
-
-          {rows.length > 0 ? (
-            rows.map((row) => (
-              <SpecRow
-                key={row.key || row.label}
-                label={row.label}
-                value={row.value || 'Não disponível'}
-                available={row.available}
-              />
-            ))
-          ) : (
-            <Text style={styles.empty}>
-              Nenhum atributo foi retornado para esta pesquisa.
-            </Text>
-          )}
-        </Card>
-
-        <PrimaryButton
-          title="Compartilhar ficha"
-          onPress={handleShare}
-        />
-
-        <TouchableOpacity
-          style={styles.secondaryButton}
-          onPress={() => navigation.goBack()}
-        >
-          <Text style={styles.secondaryButtonText}>
-            Nova pesquisa
-          </Text>
-        </TouchableOpacity>
-      </ScrollView>
-    </View>
-  );
+      const text = shareResult(result);
+      if (Platform.OS !== 'web') await Share.share({ message: text });
+      else if (globalThis.navigator?.share) await globalThis.navigator.share({ title: 'Ficha técnica', text });
+      else if (globalThis.navigator?.clipboard) {
+        await globalThis.navigator.clipboard.writeText(text); setMessage('Ficha copiada. Você já pode colar em uma mensagem.');
+      } else setMessage('O compartilhamento não está disponível neste navegador. Abra o app no Android.');
+    } catch (error) { if (error.name !== 'AbortError') setMessage('Não foi possível compartilhar a ficha. Tente novamente.'); }
+    finally { setSharing(false); }
+  };
+  return <Screen title="Ficha técnica" subtitle="Informações organizadas para sua análise." back={() => navigation.goBack()}>
+    <Card>
+      <Text style={{ color: colors.accent, fontSize: 11, fontWeight: '700', letterSpacing: 1 }}>{vehicle.marca.toUpperCase()} · {vehicle.ano}</Text>
+      <Text style={{ color: colors.text, fontSize: 30, fontWeight: '700', marginTop: 10 }}>{vehicle.modelo}</Text>
+      <Text style={[layout.body, { marginTop: 4 }]}>{vehicle.versao}</Text>
+      <View style={{ height: 1, backgroundColor: colors.border, marginVertical: 16 }} />
+      <Text style={layout.small}>Consultado em {formatDateTime(result.generatedAt)}</Text>
+    </Card>
+    {!!result.demonstrativo && <View style={layout.notice}><Text style={layout.noticeText}>DADOS DEMONSTRATIVOS · Informações do projeto acadêmico, sem verificação externa.</Text></View>}
+    {!!item.cacheWarning && <Feedback message={item.cacheWarning} />}
+    <Card>
+      <View style={[layout.row, { justifyContent: 'space-between', marginBottom: 8 }]}>
+        <Text style={[layout.title, { flex: 1, marginBottom: 0 }]}>Atributos selecionados</Text>
+        <Text style={{ fontSize: 19, color: colors.accent, fontWeight: '700' }}>{coverage}%</Text>
+      </View>
+      <Text style={[layout.small, { marginBottom: 16 }]}>{rows.filter(row => row.available).length} de {rows.length} campos preenchidos</Text>
+      {rows.map(row => <SpecRow key={row.key} {...row} />)}
+    </Card>
+    <Card><Text style={[layout.title, { fontSize: 15 }]}>Origem dos dados</Text><Text style={layout.small}>{result.source}</Text></Card>
+    {!!message && <Feedback message={message} />}
+    <PrimaryButton title={Platform.OS === 'web' && !globalThis.navigator?.share ? 'Copiar ficha' : 'Compartilhar ficha'} onPress={share} loading={sharing} />
+    <TouchableOpacity accessibilityRole="button" onPress={() => navigation.popTo('Main', { screen: 'Search' })}>
+      <Text style={layout.link}>Nova pesquisa</Text></TouchableOpacity>
+  </Screen>;
 }
-
-const styles = StyleSheet.create({
-  screen: {
-    flex: 1,
-    backgroundColor: colors.background
-  },
-
-  content: {
-    padding: 16,
-    paddingBottom: 90
-  },
-
-  vehicleTitle: {
-    color: colors.text,
-    fontSize: 22,
-    fontWeight: '900',
-    marginBottom: 6
-  },
-
-  meta: {
-    color: colors.muted,
-    fontWeight: '700',
-    marginBottom: 6
-  },
-
-  source: {
-    color: colors.muted,
-    lineHeight: 20
-  },
-
-  kpiRow: {
-    flexDirection: 'row',
-    gap: 12,
-    marginBottom: 14
-  },
-
-  sectionTitle: {
-    fontSize: 18,
-    fontWeight: '900',
-    color: colors.text,
-    marginBottom: 12
-  },
-
-  empty: {
-    color: colors.muted,
-    lineHeight: 20
-  },
-
-  secondaryButton: {
-    backgroundColor: '#FFFFFF',
-    borderWidth: 1,
-    borderColor: '#D7E0EC',
-    borderRadius: 14,
-    padding: 15,
-    alignItems: 'center',
-    marginTop: 10
-  },
-
-  secondaryButtonText: {
-    color: colors.text,
-    fontWeight: '900'
-  }
-});

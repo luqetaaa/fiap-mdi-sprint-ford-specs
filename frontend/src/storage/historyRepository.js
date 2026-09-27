@@ -1,40 +1,19 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { STORAGE_KEYS, STORAGE_CONFIG } from './storageKeys';
-
-export async function loadHistory() {
+const key = userId => '@ford_specs:history_v3:' + userId;
+export async function loadHistory(userId) {
+  if (!userId) return [];
+  const raw = await AsyncStorage.getItem(key(userId));
   try {
-    const raw = await AsyncStorage.getItem(STORAGE_KEYS.HISTORY);
-    return raw ? JSON.parse(raw) : [];
-  } catch (error) {
-    console.error('Erro ao carregar o histórico do AsyncStorage:', error);
-    // Retorna um array vazio como fallback para evitar quebra de UI
-    return [];
-  }
+    const data = raw ? JSON.parse(raw) : [];
+    return Array.isArray(data) ? data.filter(item => item?.id && item?.result?.vehicle && Array.isArray(item.result.rows)) : [];
+  } catch { return []; }
 }
-
-export async function saveHistoryItem(item) {
-  try {
-    const history = await loadHistory();
-    
-    // Evita duplicidade: remove o veículo se ele já estiver salvo no histórico
-    const filteredHistory = history.filter(h => h.vehicleId !== item.vehicleId);
-    
-    // Insere o novo item no topo e corta o array no limite estabelecido na configuração
-    const updated = [item, ...filteredHistory].slice(0, STORAGE_CONFIG.MAX_HISTORY_ITEMS);
-    
-    await AsyncStorage.setItem(STORAGE_KEYS.HISTORY, JSON.stringify(updated));
-    return updated;
-  } catch (error) {
-    console.error('Erro ao salvar item no histórico:', error);
-    throw error; 
-  }
+export async function replaceHistory(userId, items) {
+  if (!userId) throw new Error('Entre para salvar seu histórico.');
+  await AsyncStorage.setItem(key(userId), JSON.stringify(items.slice(0, 100)));
 }
-
-export async function clearHistory() {
-  try {
-    await AsyncStorage.removeItem(STORAGE_KEYS.HISTORY);
-  } catch (error) {
-    console.error('Erro ao limpar o histórico:', error);
-    throw error;
-  }
+export async function saveHistoryItem(userId, item) {
+  const history = await loadHistory(userId);
+  await replaceHistory(userId, [item, ...history.filter(existing => existing.id !== item.id)]);
 }
+export async function clearHistory(userId) { await AsyncStorage.removeItem(key(userId)); }

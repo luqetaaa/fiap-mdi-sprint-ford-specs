@@ -1,34 +1,55 @@
-import React, { useMemo, useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
-import AppHeader from '../components/AppHeader';
+import React, { useEffect, useMemo, useState } from 'react';
+import { Text, View } from 'react-native';
+import Screen from '../components/Screen';
 import Card from '../components/Card';
-import { VEHICLE_DATABASE } from '../data/vehicleSpecs';
+import VehiclePicker from '../components/VehiclePicker';
+import Feedback from '../components/Feedback';
+import { useApp } from '../hooks/AppContext';
 import { compareVehicles } from '../services/specsService';
 import { colors } from '../theme/colors';
+import { layout } from '../theme/layout';
 
 export default function CompareScreen() {
-  const [primary, setPrimary] = useState('ford-ranger-raptor-2025');
-  const [secondary, setSecondary] = useState('ford-ranger-limited-2025');
-  const fields = ['motor', 'potencia', 'torque', 'transmissao', 'tracao', 'multimidia', 'suspensao', 'pneus'];
-  const rows = useMemo(() => compareVehicles(primary, secondary, fields), [primary, secondary]);
-  const p = VEHICLE_DATABASE.find(v => v.id === primary);
-  const s = VEHICLE_DATABASE.find(v => v.id === secondary);
-  return (
-    <View style={styles.screen}>
-      <AppHeader title="Comparador" subtitle="Compare veículos em uma matriz técnica padronizada." />
-      <ScrollView contentContainerStyle={styles.content} horizontal={false}>
-        <Card>
-          <Text style={styles.section}>Veículo principal</Text>
-          <View style={styles.options}>{VEHICLE_DATABASE.map(v => <TouchableOpacity key={v.id} onPress={() => setPrimary(v.id)} style={[styles.chip, primary === v.id && styles.active]}><Text style={[styles.chipText, primary === v.id && styles.activeText]}>{v.marca} {v.modelo}</Text></TouchableOpacity>)}</View>
-          <Text style={styles.section}>Concorrente</Text>
-          <View style={styles.options}>{VEHICLE_DATABASE.filter(v => v.id !== primary).map(v => <TouchableOpacity key={v.id} onPress={() => setSecondary(v.id)} style={[styles.chip, secondary === v.id && styles.active]}><Text style={[styles.chipText, secondary === v.id && styles.activeText]}>{v.marca} {v.modelo}</Text></TouchableOpacity>)}</View>
-        </Card>
-        <Card>
-          <View style={styles.headerRow}><Text style={styles.colTitle}>{p?.marca} {p?.modelo}</Text><Text style={styles.colTitle}>{s?.marca} {s?.modelo}</Text></View>
-          {rows.map(row => <View key={row.key} style={styles.compareRow}><Text style={styles.label}>{row.label}</Text><View style={styles.values}><Text style={styles.value}>{row.primary}</Text><Text style={styles.value}>{row.secondary}</Text></View></View>)}
-        </Card>
-      </ScrollView>
-    </View>
-  );
+  const { vehicles, catalogLoading, catalogError, refreshCatalog, selectedFields } = useApp();
+  const [primaryId, setPrimaryId] = useState(null);
+  const [secondaryId, setSecondaryId] = useState(null);
+  useEffect(() => {
+    if (!vehicles.some(v => v.id === primaryId)) setPrimaryId(vehicles[0]?.id ?? null);
+  }, [vehicles, primaryId]);
+  useEffect(() => {
+    if (!vehicles.some(v => v.id === secondaryId) || secondaryId === primaryId)
+      setSecondaryId(vehicles.find(v => v.id !== primaryId)?.id ?? null);
+  }, [vehicles, primaryId, secondaryId]);
+  const primary = vehicles.find(v => v.id === primaryId);
+  const secondary = vehicles.find(v => v.id === secondaryId);
+  const rows = useMemo(() => compareVehicles(primary, secondary, selectedFields), [primary, secondary, selectedFields]);
+  return <Screen title="Compare versões" subtitle="Mesmos atributos. Uma visão mais clara das diferenças.">
+    {catalogLoading && <Feedback loading message="Carregando o catálogo…" />}
+    {!!catalogError && <Feedback message={catalogError} retry={refreshCatalog} />}
+    {!catalogLoading && vehicles.length < 2 && <Feedback message="Cadastre pelo menos duas versões para comparar." />}
+    <Card><VehiclePicker label="Veículo A" vehicles={vehicles} value={primaryId} onChange={setPrimaryId} />
+      <VehiclePicker label="Veículo B" vehicles={vehicles.filter(v => v.id !== primaryId)} value={secondaryId} onChange={setSecondaryId} />
+    </Card>
+    {primary && secondary && <>
+      {(primary.demonstrativo || secondary.demonstrativo) && <View style={layout.notice}><Text style={layout.noticeText}>Comparação com dados demonstrativos do catálogo acadêmico.</Text></View>}
+      <Card>
+        <View style={[layout.row, { alignItems: 'flex-start', marginBottom: 20 }]}>
+          {[['A', primary], ['B', secondary]].map(([letter, vehicle]) => <View key={letter} style={{ flex: 1 }}>
+            <Text style={{ color: colors.accent, fontSize: 11, fontWeight: '700', marginBottom: 6 }}>VEÍCULO {letter}</Text>
+            <Text style={{ color: colors.text, fontSize: 17, fontWeight: '700' }}>{vehicle.modelo}</Text>
+            <Text style={layout.small}>{vehicle.versao} · {vehicle.ano}</Text>
+          </View>)}
+        </View>
+        {!rows.length && <Text style={layout.body}>Selecione atributos na tela de pesquisa para comparar.</Text>}
+        {rows.map(row => <View key={row.key} style={{ borderTopWidth: 1, borderColor: colors.border, paddingVertical: 16 }}>
+          <Text style={{ fontSize: 12, fontWeight: '700', color: colors.muted, marginBottom: 10 }}>{row.label}</Text>
+          <View style={[layout.row, { alignItems: 'flex-start' }]}>
+            <Text style={{ flex: 1, color: colors.text, fontSize: 14, lineHeight: 21 }}>{row.primary}</Text>
+            <Text style={{ flex: 1, color: colors.text, fontSize: 14, lineHeight: 21 }}>{row.secondary}</Text>
+          </View>
+        </View>)}
+      </Card>
+      <Text style={layout.small}>Os atributos seguem sua seleção na tela de pesquisa. A comparação usa o mesmo catálogo das fichas.</Text>
+    </>}
+  </Screen>;
 }
-const styles = StyleSheet.create({ screen: { flex: 1, backgroundColor: colors.background }, content: { padding: 16, paddingBottom: 90 }, section: { fontWeight: '900', color: colors.text, marginBottom: 8, marginTop: 4 }, options: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginBottom: 12 }, chip: { backgroundColor: colors.chip, paddingHorizontal: 12, paddingVertical: 9, borderRadius: 999 }, active: { backgroundColor: colors.fordBlue }, chipText: { color: colors.fordBlue, fontWeight: '800', fontSize: 12 }, activeText: { color: colors.white }, headerRow: { flexDirection: 'row', gap: 10, marginBottom: 12 }, colTitle: { flex: 1, color: colors.fordBlue, fontWeight: '900', textAlign: 'center' }, compareRow: { borderTopWidth: 1, borderTopColor: colors.border, paddingVertical: 12 }, label: { color: colors.muted, fontWeight: '800', marginBottom: 8 }, values: { flexDirection: 'row', gap: 10 }, value: { flex: 1, color: colors.text, fontWeight: '700', lineHeight: 19, backgroundColor: '#F8FAFD', borderRadius: 12, padding: 10 } });

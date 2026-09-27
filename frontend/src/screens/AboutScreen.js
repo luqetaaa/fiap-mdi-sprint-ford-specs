@@ -1,28 +1,36 @@
-import React from 'react';
-import { ScrollView, Text, View, StyleSheet } from 'react-native';
-import AppHeader from '../components/AppHeader';
+import React, { useState } from 'react';
+import { Text } from 'react-native';
+import Screen from '../components/Screen';
 import Card from '../components/Card';
-import { colors } from '../theme/colors';
-
+import PrimaryButton from '../components/PrimaryButton';
+import Feedback from '../components/Feedback';
+import { useApp } from '../hooks/AppContext';
+import { layout } from '../theme/layout';
 const members = [
-  'Lucas Rodrigues de Queiroz - RM556323',
-  'Victor Hugo de Paula - RM554787',
-  'Felipe Paes de Barros Muller Carioba - RM558447',
-  'Djalma Moreira de Andrade Filho - RM555530',
-  'Matheus Gushi Morioka - RM556935'
+  'Lucas Rodrigues de Queiroz · RM556323',
+  'Victor Hugo de Paula · RM554787',
+  'Felipe Paes de Barros Muller Carioba · RM558447',
+  'Djalma Moreira de Andrade Filho · RM555530',
+  'Matheus Gushi Morioka · RM556935'
 ];
-
 export default function AboutScreen() {
-  return (
-    <View style={styles.screen}>
-      <AppHeader title="Sobre o projeto" subtitle="Sprint Mobile Development e IoT — Ford x FIAP." />
-      <ScrollView contentContainerStyle={styles.content}>
-        <Card><Text style={styles.title}>Desafio escolhido</Text><Text style={styles.text}>Desafio 01 — Inteligência Competitiva Automotiva. A solução transforma entradas simples em uma ficha técnica padronizada, clara e comparável.</Text></Card>
-        <Card><Text style={styles.title}>Arquitetura da solução</Text>{['React Native + Expo', 'React Navigation', 'AsyncStorage para histórico', 'Base JSON simulando fonte externa/API', 'Camada de serviço para busca, normalização e comparação'].map(item => <Text key={item} style={styles.bullet}>• {item}</Text>)}</Card>
-        <Card><Text style={styles.title}>Integrantes</Text>{members.map(item => <Text key={item} style={styles.bullet}>• {item}</Text>)}</Card>
-        <Card><Text style={styles.title}>Próximos passos</Text><Text style={styles.text}>Integrar APIs automotivas reais, crawling controlado em fontes aprovadas, geração de relatórios PDF e camada de IA generativa para preenchimento de JSON técnico.</Text></Card>
-      </ScrollView>
-    </View>
-  );
+  const { user, logout } = useApp();
+  const [error, setError] = useState('');
+  return <Screen title="Sobre o projeto" subtitle="Inteligência competitiva automotiva. FIAP × Ford.">
+    <Card><Text style={layout.title}>{user.nome}</Text><Text style={layout.body}>{user.email}</Text></Card>
+    <Card><Text style={layout.title}>Ford Specs Intelligence</Text>
+      <Text style={layout.body}>Uma ferramenta para consultar, organizar e comparar especificações técnicas de diferentes versões de veículos.</Text>
+      <Text style={[layout.small, { marginTop: 16 }]}>Versão 1.3.0 · Sprint 3</Text>
+    </Card>
+    <Card><Text style={layout.title}>Origem das informações</Text>
+      <Text style={layout.body}>O catálogo inicial contém dados demonstrativos do trabalho acadêmico. Eles não substituem a documentação oficial do fabricante. A origem é exibida em cada ficha.</Text>
+    </Card>
+    <Card><Text style={layout.title}>Equipe</Text>
+      {members.map(member => <Text key={member} style={[layout.body, { marginBottom: 12 }]}>{member}</Text>)}
+    </Card>
+    {!!error && <Feedback message={error} />}
+    <PrimaryButton title="Sair da conta" variant="dark" onPress={async () => {
+      try { await logout(); } catch { setError('Não foi possível encerrar a sessão. Tente novamente.'); }
+    }} />
+  </Screen>;
 }
-const styles = StyleSheet.create({ screen: { flex: 1, backgroundColor: colors.background }, content: { padding: 16, paddingBottom: 90 }, title: { fontSize: 18, fontWeight: '900', color: colors.text, marginBottom: 8 }, text: { color: colors.muted, lineHeight: 21 }, bullet: { color: colors.text, marginVertical: 5, lineHeight: 20, fontWeight: '700' } });

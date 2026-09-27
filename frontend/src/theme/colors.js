@@ -1,16 +1,6 @@
 export const colors = {
-  fordBlue: '#0A2342',
-  fordBlue2: '#123B6D',
-  accent: '#1E88E5',
-  accent2: '#58B7FF',
-  background: '#F4F7FB',
-  card: '#FFFFFF',
-  text: '#162033',
-  muted: '#6B7280',
-  border: '#E5EAF2',
-  danger: '#DC2626',
-  success: '#16A34A',
-  warning: '#F59E0B',
-  white: '#FFFFFF',
-  chip: '#EAF3FF'
+  fordBlue: '#082A54', fordBlue2: '#12467B', accent: '#0869C6', accent2: '#83CBFF',
+  background: '#F3F6FA', card: '#FFFFFF', text: '#12253E', muted: '#53667D',
+  border: '#DCE5EF', danger: '#B42318', success: '#137346', warning: '#8C5700',
+  white: '#FFFFFF', chip: '#E9F2FC'
 };

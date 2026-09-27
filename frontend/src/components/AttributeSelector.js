@@ -17,7 +17,7 @@ export default function AttributeSelector({ selected, onChange }) {
             {group.items.map((key) => {
               const active = selected.includes(key);
               return (
-                <TouchableOpacity key={key} onPress={() => toggle(key)} style={[styles.chip, active && styles.activeChip]}>
+                <TouchableOpacity accessibilityRole="checkbox" accessibilityLabel={FIELD_LABELS[key]} accessibilityState={{ checked: active }} key={key} onPress={() => toggle(key)} style={[styles.chip, active && styles.activeChip]}>
                   <Text style={[styles.chipText, active && styles.activeText]}>{FIELD_LABELS[key]}</Text>
                 </TouchableOpacity>
               );
@@ -28,4 +28,4 @@ export default function AttributeSelector({ selected, onChange }) {
     </View>
   );
 }
-const styles = StyleSheet.create({ group: { marginBottom: 14 }, groupTitle: { fontWeight: '900', color: colors.text, marginBottom: 8 }, chips: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 }, chip: { paddingHorizontal: 12, paddingVertical: 9, backgroundColor: colors.chip, borderRadius: 999, borderWidth: 1, borderColor: '#D6E8FF' }, activeChip: { backgroundColor: colors.fordBlue, borderColor: colors.fordBlue }, chipText: { color: colors.fordBlue, fontWeight: '700', fontSize: 12 }, activeText: { color: colors.white } });
+const styles = StyleSheet.create({ group: { marginBottom: 14 }, groupTitle: { fontWeight: '900', color: colors.text, marginBottom: 8 }, chips: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 }, chip: { paddingHorizontal: 12, paddingVertical: 13, backgroundColor: colors.chip, borderRadius: 999, borderWidth: 1, borderColor: '#D6E8FF' }, activeChip: { backgroundColor: colors.fordBlue, borderColor: colors.fordBlue }, chipText: { color: colors.fordBlue, fontWeight: '700', fontSize: 12 }, activeText: { color: colors.white } });

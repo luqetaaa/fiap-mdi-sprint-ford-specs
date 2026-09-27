@@ -1,41 +1,42 @@
 import React from 'react';
-import { ScrollView, Text, View, StyleSheet, TouchableOpacity } from 'react-native';
+import { Text, View, TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import AppHeader from '../components/AppHeader';
+import Screen from '../components/Screen';
 import Card from '../components/Card';
-import KpiCard from '../components/KpiCard';
 import PrimaryButton from '../components/PrimaryButton';
-import { colors } from '../theme/colors';
+import Feedback from '../components/Feedback';
 import { useApp } from '../hooks/AppContext';
+import { colors } from '../theme/colors';
+import { layout } from '../theme/layout';
 
 export default function HomeScreen({ navigation }) {
-  const { user } = useApp();
-  return (
-    <View style={styles.screen}>
-      <AppHeader title="Inteligência competitiva" subtitle={`Olá, ${user?.name}. Pesquise veículos e gere fichas técnicas padronizadas.`} />
-      <ScrollView contentContainerStyle={styles.content}>
-        <View style={styles.kpiRow}>
-          <KpiCard value="1h → 2min" label="ganho estimado" hint="por versão" />
-          <KpiCard value="100%" label="formato padrão" hint="campos comparáveis" />
-        </View>
-        <Card>
-          <Text style={styles.cardTitle}>Caso de validação obrigatório</Text>
-          <Text style={styles.text}>A base demonstrativa inclui a Ford Ranger Raptor com especificações completas para validar a solução conforme o enunciado.</Text>
-          <PrimaryButton title="Pesquisar Ranger Raptor" onPress={() => navigation.navigate('Search')} variant="dark" />
-        </Card>
-        <Card>
-          <Text style={styles.cardTitle}>Fluxo da solução</Text>
-          {['Entrada: marca, modelo, versão e atributos desejados', 'Camada de busca: base local, API ou crawler/LLM', 'Normalização: campos vazios viram “Não disponível”', 'Saída: ficha clara, padronizada e comparável'].map((item, index) => (
-            <View key={item} style={styles.step}><View style={styles.circle}><Text style={styles.circleText}>{index + 1}</Text></View><Text style={styles.stepText}>{item}</Text></View>
-          ))}
-        </Card>
-        <TouchableOpacity style={styles.aiBox} onPress={() => navigation.navigate('Compare')}>
-          <Ionicons name="sparkles" size={26} color={colors.white} />
-          <View style={{ flex: 1 }}><Text style={styles.aiTitle}>Diferencial técnico</Text><Text style={styles.aiText}>Comparador inteligente entre concorrentes com leitura padronizada.</Text></View>
-          <Ionicons name="chevron-forward" size={22} color={colors.white} />
-        </TouchableOpacity>
-      </ScrollView>
+  const { user, vehicles, catalogLoading, catalogError, refreshCatalog, lastResult } = useApp();
+  const raptor = vehicles.find(v => v.modelo === 'Ranger' && v.versao.includes('Raptor'));
+  return <Screen title={'Olá, ' + (user?.nome?.split(' ')[0] || 'analista') + '.'} subtitle="Sua próxima análise começa por uma boa pesquisa.">
+    {catalogError && <Feedback message={catalogError} retry={refreshCatalog} />}
+    <View style={[layout.row, { alignItems: 'stretch' }]}>
+      {[[vehicles.length, 'versões no catálogo'], [new Set(vehicles.map(v => v.modelo)).size, 'modelos disponíveis']].map(([count, label]) =>
+        <Card key={label} style={{ flex: 1 }}><Text style={{ fontSize: 30, fontWeight: '700', color: colors.fordBlue }}>{catalogLoading ? '—' : count}</Text>
+          <Text style={layout.small}>{label}</Text></Card>)}
     </View>
-  );
+    <Card><Ionicons name="search-outline" color={colors.accent} size={27} style={{ marginBottom: 14 }} />
+      <Text style={layout.title}>Encontre o que importa.</Text>
+      <Text style={[layout.body, { marginBottom: 20 }]}>Escolha uma versão e os atributos que deseja analisar. Receba uma ficha com as informações lado a lado.</Text>
+      <PrimaryButton title="Nova pesquisa" onPress={() => navigation.navigate('Search')} />
+    </Card>
+    <Card><Text style={layout.title}>Explore a Ranger Raptor</Text>
+      <Text style={[layout.body, { marginBottom: 16 }]}>Motor, tração, tecnologia e capacidades em uma ficha organizada.</Text>
+      <PrimaryButton title="Consultar Ranger Raptor" variant="dark" disabled={!raptor}
+        onPress={() => navigation.navigate('Search', { vehicleId: raptor.id })} />
+    </Card>
+    <TouchableOpacity accessibilityRole="button" onPress={() => navigation.navigate('Compare')}>
+      <Card><View style={layout.row}><Ionicons name="git-compare-outline" color={colors.accent} size={26} />
+        <View style={{ flex: 1 }}><Text style={[layout.title, { fontSize: 17, marginBottom: 4 }]}>Compare duas versões</Text>
+          <Text style={layout.small}>Os mesmos atributos, em uma única visão.</Text></View>
+        <Ionicons name="arrow-forward" color={colors.accent} size={20} /></View></Card>
+    </TouchableOpacity>
+    {lastResult && <TouchableOpacity accessibilityRole="button" onPress={() => navigation.navigate('Result', { item: lastResult })}>
+      <Text style={layout.link}>Reabrir última ficha</Text></TouchableOpacity>}
+    <Text style={layout.small}>O catálogo inicial utiliza os dados demonstrativos do projeto. A origem acompanha cada ficha.</Text>
+  </Screen>;
 }
-const styles = StyleSheet.create({ screen: { flex: 1, backgroundColor: colors.background }, content: { padding: 16, paddingBottom: 90 }, kpiRow: { flexDirection: 'row', gap: 12, marginBottom: 14 }, cardTitle: { color: colors.text, fontSize: 18, fontWeight: '900', marginBottom: 8 }, text: { color: colors.muted, lineHeight: 20, marginBottom: 14 }, step: { flexDirection: 'row', alignItems: 'center', marginVertical: 8 }, circle: { width: 28, height: 28, borderRadius: 14, alignItems: 'center', justifyContent: 'center', backgroundColor: colors.chip, marginRight: 10 }, circleText: { color: colors.fordBlue, fontWeight: '900' }, stepText: { color: colors.text, fontWeight: '700', flex: 1 }, aiBox: { backgroundColor: colors.fordBlue, borderRadius: 20, padding: 16, flexDirection: 'row', alignItems: 'center', gap: 12 }, aiTitle: { color: colors.white, fontWeight: '900', fontSize: 16 }, aiText: { color: '#D9ECFF', marginTop: 3 } });

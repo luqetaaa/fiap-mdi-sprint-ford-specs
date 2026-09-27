@@ -1,16 +1,15 @@
 import React from 'react';
-import { TouchableOpacity, Text, StyleSheet, ActivityIndicator } from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
+import { TouchableOpacity, Text, ActivityIndicator, StyleSheet } from 'react-native';
 import { colors } from '../theme/colors';
-
 export default function PrimaryButton({ title, onPress, loading, disabled, variant = 'primary' }) {
-  const gradient = variant === 'dark' ? [colors.fordBlue, colors.fordBlue2] : [colors.accent, colors.accent2];
-  return (
-    <TouchableOpacity activeOpacity={0.86} onPress={onPress} disabled={disabled || loading} style={{ opacity: disabled ? 0.55 : 1 }}>
-      <LinearGradient colors={gradient} style={styles.button}>
-        {loading ? <ActivityIndicator color="#fff" /> : <Text style={styles.text}>{title}</Text>}
-      </LinearGradient>
-    </TouchableOpacity>
-  );
+  return <TouchableOpacity accessibilityRole="button" accessibilityLabel={title}
+    accessibilityState={{ disabled: !!(loading || disabled), busy: !!loading }}
+    onPress={onPress} disabled={disabled || loading}
+    style={[styles.button, variant === 'dark' && { backgroundColor: colors.fordBlue }, (disabled || loading) && { opacity: 0.6 }]}>
+    {loading ? <ActivityIndicator color="white" /> : <Text style={styles.text}>{title}</Text>}
+  </TouchableOpacity>;
 }
-const styles = StyleSheet.create({ button: { borderRadius: 16, paddingVertical: 15, alignItems: 'center' }, text: { color: '#fff', fontWeight: '900', fontSize: 15 } });
+const styles = StyleSheet.create({
+  button: { minHeight: 50, padding: 14, backgroundColor: colors.accent, borderRadius: 13, alignItems: 'center', justifyContent: 'center' },
+  text: { color: 'white', fontSize: 15, fontWeight: '700', textAlign: 'center' }
+});

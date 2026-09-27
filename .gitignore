@@ -1,0 +1,10 @@
+**/node_modules/
+**/target/
+**/.expo/
+**/.idea/
+**/dist/
+**/dist-validated/
+**/.env
+**/.env.local
+*.jks
+*.keystore

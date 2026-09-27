@@ -1,0 +1,31 @@
+# Blueprint do Render: cria a API (Docker) e o PostgreSQL de uma vez.
+# No painel do Render: New > Blueprint > selecione este repositório.
+databases:
+  - name: ford-specs-db
+    plan: free
+    databaseName: ford_specs
+    user: ford_specs
+
+services:
+  - type: web
+    name: ford-specs-api
+    runtime: docker
+    plan: free
+    dockerfilePath: ./backend/Dockerfile
+    dockerContext: ./backend
+    healthCheckPath: /health
+    envVars:
+      - key: DB_HOST
+        fromDatabase: { name: ford-specs-db, property: host }
+      - key: DB_PORT
+        fromDatabase: { name: ford-specs-db, property: port }
+      - key: DB_NAME
+        fromDatabase: { name: ford-specs-db, property: database }
+      - key: DATABASE_USER
+        fromDatabase: { name: ford-specs-db, property: user }
+      - key: DATABASE_PASSWORD
+        fromDatabase: { name: ford-specs-db, property: password }
+      - key: JWT_SECRET
+        generateValue: true
+      - key: SEED_DEMO_CATALOG
+        value: "true"

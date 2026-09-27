@@ -1,88 +1,28 @@
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import { api } from './apiClient';
+import { getToken, getStoredUser, saveSession, clearSession } from '../storage/sessionStore';
 
-import {
-  api,
-  STORAGE_KEYS
-} from './apiClient';
-
-export async function registerWithApi({
-  nome,
-  email,
-  senha
-}) {
-
-  const payload = {
-    nome,
-    email,
-    senha
-  };
-
-  const response = await api.post('/auth/register', payload);
-
-  return response.data;
+export async function registerWithApi({ nome, email, senha }) {
+  return (await api.post('/auth/register', { nome: nome.trim(), email: email.trim().toLowerCase(), senha })).data;
 }
-
-export async function loginWithApi({
-  email,
-  senha
-}) {
-
-  const response = await api.post('/auth/login', {
-    email,
-    senha
-  });
-
-  const data = response.data;
-
-  if (!data?.accessToken) {
-    throw new Error('Token JWT não retornado pela API.');
+export async function loginWithApi({ email, senha }) {
+  const { data } = await api.post('/auth/login', { email: email.trim().toLowerCase(), senha });
+  if (!data.accessToken || !data.user?.id) throw new Error('O serviço retornou uma sessão incompleta.');
+  await saveSession(data.accessToken, data.user);
+  return data.user;
+}
+export async function loadStoredSession() {
+  const [token, user] = await Promise.all([getToken(), getStoredUser()]);
+  if (!token || !user?.id) { await clearSession(); return null; }
+  try {
+    const { data } = await api.get('/auth/me');
+    await saveSession(token, data);
+    return data;
+  } catch (error) {
+    if (error.response?.status === 401 || error.response?.status === 403) {
+      await clearSession(); return null;
+    }
+    // A previously authenticated user can reopen their cached history offline.
+    return user;
   }
-
-  await AsyncStorage.setItem(
-    STORAGE_KEYS.TOKEN,
-    data.accessToken
-  );
-
-  const userData = {
-    email,
-    nome: data?.nome || 'Analista Ford',
-    tokenType: data?.tokenType || 'Bearer'
-  };
-
-  await AsyncStorage.setItem(
-    STORAGE_KEYS.USER,
-    JSON.stringify(userData)
-  );
-
-  return userData;
 }
-
-export async function getLoggedUser() {
-
-  const rawUser = await AsyncStorage.getItem(
-    STORAGE_KEYS.USER
-  );
-
-  if (!rawUser) {
-    return null;
-  }
-
-  return JSON.parse(rawUser);
-}
-
-export async function isAuthenticated() {
-
-  const token = await AsyncStorage.getItem(
-    STORAGE_KEYS.TOKEN
-  );
-
-  return !!token;
-}
-
-export async function logout() {
-
-  await AsyncStorage.multiRemove([
-    STORAGE_KEYS.TOKEN,
-    STORAGE_KEYS.USER
-  ]);
-}
+export const logoutFromApi = clearSession;

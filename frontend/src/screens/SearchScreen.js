@@ -1,313 +1,59 @@
-import React, { useMemo, useState } from 'react';
-
-import {
-  View,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  StyleSheet,
-  ActivityIndicator,
-  ScrollView
-} from 'react-native';
-
-import {
-  searchVehicle,
-  getSpecifications,
-  normalizeSpecifications,
-  buildTechnicalRows,
-  calculateCoverage
-} from '../services/apiVehicleService';
-
+import React, { useEffect, useState } from 'react';
+import { View, Text, TouchableOpacity } from 'react-native';
+import Screen from '../components/Screen';
+import Card from '../components/Card';
+import VehiclePicker from '../components/VehiclePicker';
+import AttributeSelector from '../components/AttributeSelector';
+import PrimaryButton from '../components/PrimaryButton';
+import Feedback from '../components/Feedback';
+import { useApp } from '../hooks/AppContext';
+import { searchVehicle } from '../services/apiVehicleService';
+import { saveHistoryItem } from '../storage/historyRepository';
 import { getApiErrorMessage } from '../services/apiClient';
+import { layout } from '../theme/layout';
+import { colors } from '../theme/colors';
 
-export default function SearchScreen({ navigation }) {
-
-  const [form, setForm] = useState({
-    marca: 'Ford',
-    modelo: 'Mustang',
-    ano: '2024',
-    versao: 'GT'
-  });
-
+export default function SearchScreen({ navigation, route }) {
+  const { user, vehicles, catalogLoading, catalogError, refreshCatalog, selectedFields, setSelectedFields, setLastResult } = useApp();
+  const [vehicleId, setVehicleId] = useState(null);
+  const [expanded, setExpanded] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [errorMessage, setErrorMessage] = useState('');
-
-  const isFormValid = useMemo(() => {
-    return (
-      form.modelo?.trim() &&
-      form.ano?.trim() &&
-      form.versao?.trim()
-    );
-  }, [form]);
-
-  function updateField(field, value) {
-    setForm((oldState) => ({
-      ...oldState,
-      [field]: value
-    }));
-  }
-
-  async function handleSearchVehicle() {
-
+  const [error, setError] = useState('');
+  useEffect(() => {
+    if (route.params?.vehicleId && vehicles.some(v => v.id === route.params.vehicleId)) setVehicleId(route.params.vehicleId);
+    else if (!vehicles.some(v => v.id === vehicleId) && vehicles.length) setVehicleId(vehicles[0].id);
+  }, [vehicles, route.params?.vehicleId]);
+  const vehicle = vehicles.find(v => v.id === vehicleId);
+  const search = async () => {
+    if (!vehicle || !selectedFields.length || loading) return;
+    setError(''); setLoading(true);
     try {
-
-      setLoading(true);
-      setErrorMessage('');
-
-      if (!isFormValid) {
-        setErrorMessage('Preencha todos os campos obrigatórios.');
-        return;
-      }
-
-      const vehicle = await searchVehicle({
-        marca: form.marca,
-        modelo: form.modelo,
-        ano: form.ano,
-        versao: form.versao
-      });
-
-      let specifications = null;
-
-      if (vehicle?.id) {
-        specifications = await getSpecifications(vehicle.id);
-      }
-
-      const normalizedSpecs =
-        normalizeSpecifications(specifications);
-
-      const technicalRows =
-        buildTechnicalRows(vehicle, normalizedSpecs);
-
-      const coverage =
-        calculateCoverage(technicalRows);
-
-      navigation.navigate('Result', {
-        vehicle,
-        specs: normalizedSpecs,
-        technicalRows,
-        coverage
-      });
-
-    } catch (error) {
-
-      setErrorMessage(
-        getApiErrorMessage(error)
-      );
-
-    } finally {
-
-      setLoading(false);
-    }
-  }
-
-  return (
-    <ScrollView
-      style={styles.screen}
-      contentContainerStyle={styles.content}
-      showsVerticalScrollIndicator={false}
-    >
-
-      <Text style={styles.title}>
-        Inteligência Competitiva
-      </Text>
-
-      <Text style={styles.subtitle}>
-        Consulte especificações técnicas diretamente da API Ford Competitive.
-      </Text>
-
-      <View style={styles.card}>
-
-        <Text style={styles.label}>Marca</Text>
-
-        <View style={styles.lockedInput}>
-          <Text style={styles.lockedText}>
-            {form.marca}
-          </Text>
-        </View>
-
-        <Text style={styles.label}>Modelo</Text>
-
-        <TextInput
-          style={styles.input}
-          value={form.modelo}
-          onChangeText={(value) =>
-            updateField('modelo', value)
-          }
-          placeholder="Ex: Mustang"
-          placeholderTextColor="#9AA5B1"
-        />
-
-        <Text style={styles.label}>Ano</Text>
-
-        <TextInput
-          style={styles.input}
-          value={form.ano}
-          onChangeText={(value) =>
-            updateField('ano', value)
-          }
-          keyboardType="numeric"
-          placeholder="Ex: 2024"
-          placeholderTextColor="#9AA5B1"
-        />
-
-        <Text style={styles.label}>Versão</Text>
-
-        <TextInput
-          style={styles.input}
-          value={form.versao}
-          onChangeText={(value) =>
-            updateField('versao', value)
-          }
-          placeholder="Ex: GT"
-          placeholderTextColor="#9AA5B1"
-        />
-
-        {errorMessage ? (
-          <Text style={styles.errorText}>
-            {errorMessage}
-          </Text>
-        ) : null}
-
-        <TouchableOpacity
-          style={[
-            styles.button,
-            !isFormValid && styles.buttonDisabled
-          ]}
-          onPress={handleSearchVehicle}
-          disabled={loading || !isFormValid}
-        >
-
-          {loading ? (
-            <ActivityIndicator color="#FFFFFF" />
-          ) : (
-            <Text style={styles.buttonText}>
-              Consultar especificações
-            </Text>
-          )}
-
-        </TouchableOpacity>
-
-      </View>
-
-      <View style={styles.infoCard}>
-
-        <Text style={styles.infoTitle}>
-          Como funciona?
-        </Text>
-
-        <Text style={styles.infoText}>
-          O aplicativo envia os dados do veículo para a API,
-          consulta as especificações técnicas e gera uma ficha
-          padronizada para análise comparativa.
-        </Text>
-
-      </View>
-
-    </ScrollView>
-  );
+      const item = await searchVehicle(vehicle, selectedFields);
+      try { await saveHistoryItem(user.id, item); }
+      catch { item.cacheWarning = 'Ficha salva na sua conta. A cópia offline não pôde ser salva neste dispositivo.'; }
+      setLastResult(item);
+      navigation.navigate('Result', { item });
+    } catch (e) { setError(getApiErrorMessage(e)); }
+    finally { setLoading(false); }
+  };
+  return <Screen title="Nova pesquisa" subtitle="Escolha a versão. Selecione os atributos. Gere sua ficha.">
+    {catalogLoading && <Feedback loading message="Carregando o catálogo…" />}
+    {!!catalogError && <Feedback message={catalogError} retry={refreshCatalog} />}
+    {!catalogLoading && !catalogError && !vehicles.length && <Feedback message="O catálogo está vazio. Nenhum veículo foi cadastrado." retry={refreshCatalog} />}
+    <Card><Text style={layout.title}>01 / Veículo</Text>
+      <VehiclePicker label="Modelo e versão" vehicles={vehicles} value={vehicleId} onChange={setVehicleId} />
+      {!!vehicle && <Text style={layout.small}>{vehicle.marca} · Ano {vehicle.ano}</Text>}
+    </Card>
+    <Card><Text style={layout.title}>02 / Atributos técnicos</Text>
+      <Text style={layout.body}>{selectedFields.length} atributos selecionados para sua análise.</Text>
+      <TouchableOpacity accessibilityRole="button" onPress={() => setExpanded(!expanded)}>
+        <Text style={[layout.link, { textAlign: 'left' }]}>{expanded ? 'Recolher atributos' : 'Personalizar atributos'}</Text>
+      </TouchableOpacity>
+      {expanded && <AttributeSelector selected={selectedFields} onChange={setSelectedFields} />}
+      {!selectedFields.length && <Text style={{ color: colors.danger }}>Selecione pelo menos um atributo.</Text>}
+    </Card>
+    {!!error && <Feedback message={error} />}
+    <PrimaryButton title="Gerar ficha técnica" loading={loading} disabled={!vehicle || !selectedFields.length} onPress={search} />
+    <View style={layout.gap} /><Text style={layout.small}>A pesquisa será salva no histórico da sua conta. Campos sem informação aparecem como “Não disponível”.</Text>
+  </Screen>;
 }
-
-const styles = StyleSheet.create({
-
-  screen: {
-    flex: 1,
-    backgroundColor: '#EEF3F8'
-  },
-
-  content: {
-    padding: 18,
-    paddingBottom: 40
-  },
-
-  title: {
-    fontSize: 28,
-    fontWeight: '900',
-    color: '#071E3D'
-  },
-
-  subtitle: {
-    marginTop: 8,
-    color: '#5F6B7A',
-    lineHeight: 21,
-    marginBottom: 18
-  },
-
-  card: {
-    backgroundColor: '#FFFFFF',
-    borderRadius: 18,
-    padding: 18,
-    borderWidth: 1,
-    borderColor: '#DDE6F2'
-  },
-
-  label: {
-    fontWeight: '900',
-    color: '#172033',
-    marginBottom: 7
-  },
-
-  input: {
-    backgroundColor: '#F8FAFD',
-    borderWidth: 1,
-    borderColor: '#DDE6F2',
-    borderRadius: 12,
-    padding: 14,
-    marginBottom: 16,
-    color: '#172033'
-  },
-
-  lockedInput: {
-    backgroundColor: '#EAF2FF',
-    borderWidth: 1,
-    borderColor: '#BDD7FF',
-    borderRadius: 12,
-    padding: 14,
-    marginBottom: 16
-  },
-
-  lockedText: {
-    color: '#071E3D',
-    fontWeight: '900'
-  },
-
-  button: {
-    backgroundColor: '#071E3D',
-    borderRadius: 12,
-    padding: 16,
-    alignItems: 'center'
-  },
-
-  buttonDisabled: {
-    opacity: 0.6
-  },
-
-  buttonText: {
-    color: '#FFFFFF',
-    fontWeight: '900'
-  },
-
-  errorText: {
-    color: '#D62828',
-    fontWeight: '800',
-    marginBottom: 12
-  },
-
-  infoCard: {
-    marginTop: 18,
-    backgroundColor: '#071E3D',
-    borderRadius: 18,
-    padding: 18
-  },
-
-  infoTitle: {
-    color: '#FFFFFF',
-    fontWeight: '900',
-    fontSize: 18,
-    marginBottom: 10
-  },
-
-  infoText: {
-    color: '#D7E7FF',
-    lineHeight: 22
-  }
-});

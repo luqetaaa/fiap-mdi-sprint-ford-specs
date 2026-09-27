@@ -1,520 +1,233 @@
-# Ford Specs Intelligence + Ford Competitive Intelligence API
+# Ford Specs Intelligence — Sprint 3
 
-Aplicação fullstack desenvolvida para a Sprint Mobile Development and IoT + SOA & Web Services — Ford x FIAP.
+Projeto acadêmico FIAP × Ford para consultar especificações, selecionar atributos e comparar versões de veículos.
 
----
+## Entrega final
 
-# Sobre o Projeto
+<!-- Preencher após concluir o docs/CHECKLIST_ENTREGA.md e apagar este comentário. -->
 
-O Ford Specs Intelligence responde ao desafio de Inteligência Competitiva Automotiva proposto pela Ford.
-
-A solução automatiza a pesquisa e padronização de especificações técnicas automotivas através de:
-
-- aplicação mobile React Native
-- API REST Spring Boot
-- autenticação JWT
-- persistência em PostgreSQL
-- arquitetura preparada para IA e integração futura
-
-A proposta reduz o trabalho manual de análise competitiva em sites, PDFs e portais automotivos, retornando uma ficha técnica padronizada e comparável.
-
----
-
-# Objetivo da Solução
-
-O sistema permite que usuários:
-
-- pesquisem veículos Ford
-- selecionem atributos técnicos específicos
-- gerem fichas técnicas padronizadas
-- comparem informações automotivas
-- armazenem histórico de pesquisas
-- compartilhem resultados
-
-Tudo integrado a uma API REST segura com JWT.
-
----
-
-# Integrantes do Grupo
-
-| Nome | RM |
+| Item | Link |
 |---|---|
-| Lucas Rodrigues de Queiroz | RM556323 |
-| Victor Hugo de Paula | RM554787 |
-| Felipe Paes de Barros Muller Carioba | RM558447 |
-| Djalma Moreira de Andrade Filho | RM555530 |
-| Matheus Gushi Morioka | RM556935 |
+| APK Android (v1.3.0) | [Baixar APK](COLE-AQUI-O-LINK-DO-APK) |
+| API publicada | https://COLE-AQUI-A-URL.onrender.com ([Swagger](https://COLE-AQUI-A-URL.onrender.com/swagger-ui/index.html)) |
+| Vídeo de demonstração | [Assistir](COLE-AQUI-O-LINK-DO-VIDEO) |
+| Evidência de instalação | Testado em APARELHO, Android VERSÃO, em DATA: XX de 19 fluxos aprovados ([detalhes](docs/CHECKLIST_ENTREGA.md#evidência-de-instalação)) |
 
----
+Para instalar: baixe o `.apk` em um celular Android, abra o arquivo e permita a instalação desta origem. Não é necessário Expo Go. Na primeira abertura, crie uma conta em **Criar uma conta**.
 
-# Tecnologias Utilizadas
+> A API está hospedada em plano gratuito e desliga quando fica sem uso. Se o primeiro acesso demorar, aguarde até 1 minuto: o app avisa e o servidor volta sozinho.
 
-## Frontend
+## Funcionalidades
 
-- React Native
-- Expo
-- React Navigation
-- Axios
-- AsyncStorage
-- Expo Linear Gradient
-- Expo Vector Icons
-- JavaScript
+- Cadastro, login, restauração de sessão e logout.
+- Catálogo de 25 versões servido pela API.
+- Pesquisa por marca, modelo, versão e ano; seleção dos atributos desejados.
+- Ficha técnica com cobertura, origem dos dados e compartilhamento.
+- Histórico individual, reabertura de ficha e exclusão.
+- Cache do histórico por usuário para consulta quando o serviço não responder.
+- Comparação de duas versões usando o mesmo catálogo.
+- Tema, componentes, ícone e splash padronizados.
 
----
+## Segurança e decisões técnicas
 
-## Backend
+Autenticação por JWT, com o token guardado no SecureStore do Android. Pesquisa, resultado e histórico usam um contrato comum entre app e API. Cada histórico pertence ao usuário autenticado. O comparador usa o mesmo catálogo da API.
 
-- Java 21
-- Spring Boot
-- Spring Security
-- JWT Authentication
-- Spring Data JPA
-- Hibernate
-- PostgreSQL
-- Swagger/OpenAPI
-- Maven
+Veículos desconhecidos retornam 404: a API não cria especificações genéricas. O cadastro não expõe hashes de senha e tokens inválidos/expirados retornam 401. Credenciais de banco e segredo JWT são externos ao código de produção.
 
----
+## Dados e escopo
 
-# Arquitetura da Aplicação
+As 25 versões foram copiadas da base demonstrativa do projeto original, **sem verificação externa das especificações**. Essa condição aparece no app. O antigo percentual de “confiança” foi removido.
 
-```txt
-React Native App
-        ↓
-Spring Boot REST API
-        ↓
-JWT Authentication
-        ↓
-Controllers
-        ↓
-Services
-        ↓
-Repositories
-        ↓
-PostgreSQL Database
+Não há scraping, pesquisa em sites ou IA generativa implementados. Se o enunciado completo do desafio Ford exigir esses recursos, eles continuam pendentes. A imagem da Sprint 3 fornecida trata de finalização, identidade visual, documentação e APK.
+
+## Equipe
+
+| Integrante | RM |
+|---|---|
+| Lucas Rodrigues de Queiroz | 556323 |
+| Victor Hugo de Paula | 554787 |
+| Felipe Paes de Barros Muller Carioba | 558447 |
+| Djalma Moreira de Andrade Filho | 555530 |
+| Matheus Gushi Morioka | 556935 |
+
+## Arquitetura
+
+| Camada | Tecnologias |
+|---|---|
+| App | React Native 0.86.3, Expo SDK 57, React 19.2, JavaScript, React Navigation 7 |
+| Comunicação | Axios e JWT |
+| Persistência no dispositivo | SecureStore para token nativo; AsyncStorage para cache e versão web |
+| API | Java 21, Spring Boot 3.5, Security, JPA |
+| Banco principal | PostgreSQL |
+| Demonstração/testes | H2 em memória, em perfil separado |
+
+A versão 1.3.0 adiciona a publicação da API em contêiner e o despertar automático do servidor ao abrir o app. A revisão 1.2.0 atualizou o Expo e suas dependências compatíveis. As versões exatas estão em `frontend/package-lock.json`. Para atualizar uma instalação existente, consulte [ATUALIZAR_FRONTEND.md](docs/ATUALIZAR_FRONTEND.md).
+
+- `frontend/` — aplicativo Expo.
+- `backend/` — API, catálogo inicial e testes.
+- `docs/telas/` — capturas reais da versão web em largura de celular.
+- `docs/GERAR_APK.md` — geração e instalação Android.
+- `docs/ROTEIRO_VIDEO.md` — demonstração de todas as telas.
+- `docs/REQUISITOS_SPRINT3.md` — situação da entrega.
+- `docs/PUBLICAR_API.md` — publicação da API e do banco no Render.
+- `docs/CHECKLIST_ENTREGA.md` — etapas finais, testes no Android e evidências.
+- `render.yaml` e `backend/Dockerfile` — infraestrutura da API na nuvem.
+
+## Rodar primeiro no computador
+
+Pré-requisitos: JDK 21, Node.js 24 LTS (validado com 24.19.0), Git para o fluxo EAS, internet para dependências e dois terminais. O wrapper Maven está incluído.
+
+### API de demonstração
+
+No PowerShell, a partir da raiz extraída:
+
+```powershell
+cd backend
+.\mvnw.cmd spring-boot:run "-Dspring-boot.run.profiles=demo"
 ```
 
----
+No Linux/macOS, use `bash mvnw spring-boot:run -Dspring-boot.run.profiles=demo`.
 
-# Estrutura do Projeto
+A API abre em `http://localhost:8080`. O perfil `demo` usa H2 e carrega o catálogo. **Contas e históricos são apagados ao encerrar o servidor.** Use esse perfil para conferência local, não como backend definitivo.
 
-```txt
-fiap-mdi-sprint-ford-specs
-│
-├── backend
-│
-├── frontend
-│
-└── README.md
+### Aplicativo
+
+Em outro terminal, a partir da raiz:
+
+```powershell
+cd frontend
+npm.cmd ci
+if (!(Test-Path .env)) { Copy-Item .env.example .env }
+npx.cmd expo start --web --clear --port 8081
 ```
 
----
+No Linux/macOS, use `npm`/`npx` sem `.cmd` e crie `.env` com `cp .env.example .env` apenas se ele ainda não existir. O app abre em `http://localhost:8081`.
 
-# Estrutura Frontend
+Na primeira execução, clique em **Criar uma conta**. Não há uma conta ou senha obrigatória de teste.
 
-```txt
-src/
-  components/
-  data/
-  hooks/
-  navigation/
-  screens/
-  services/
-  storage/
-  theme/
-  utils/
-```
+### Fluxo de conferência
 
----
+1. Cadastre-se e entre.
+2. Abra **Consultar Ranger Raptor**.
+3. Selecione os campos em **Personalizar atributos**.
+4. Gere a ficha; confira veículo, atributos e origem.
+5. Compartilhe no Android ou copie a ficha no navegador compatível.
+6. Reabra pelo **Histórico**.
+7. Compare duas versões diferentes.
+8. Confira **Sobre** e saia da conta.
 
-# Estrutura Backend
+## PostgreSQL: persistir usuários e históricos
 
-```txt
-src/main/java/com/fordchallenge/ford_competitive_api
-
-├── auth
-├── common
-├── config
-├── searches
-├── security
-├── specifications
-├── users
-└── vehicles
-```
-
----
-
-# Funcionalidades Implementadas
-
-## Frontend
-
-- Login e cadastro
-- Integração com API REST
-- Pesquisa de veículos Ford
-- Seleção de atributos técnicos
-- Geração de ficha técnica
-- Compartilhamento de resultado
-- Histórico persistente
-- Comparador técnico
-- Loading e feedback visual
-
----
-
-## Backend
-
-- API REST Spring Boot
-- Autenticação JWT
-- Persistência PostgreSQL
-- Histórico de pesquisas
-- Busca de veículos
-- Especificações técnicas
-- Swagger/OpenAPI
-- Arquitetura em camadas
-- DTO Pattern
-- Repository Pattern
-
----
-
-# Banco de Dados
-
-## Tabelas
-
-### users
-- usuários autenticados
-
-### vehicles
-- veículos cadastrados
-
-### vehicle_specs
-- especificações técnicas
-
-### search_history
-- histórico de pesquisas
-
----
-
-# Como Rodar o Projeto
-
-# Pré-requisitos
-
-Instalar:
-
-- Java JDK 21
-- IntelliJ IDEA
-- PostgreSQL
-- Node.js LTS
-- Git
-- Expo Go
-- VS Code
-
----
-
-# 1. Clonar Repositório
-
-```bash
-git clone LINK_DO_REPOSITORIO
-```
-
----
-
-# 2. Criar Banco PostgreSQL
-
-Abrir pgAdmin 4.
-
-Criar database:
+Na primeira configuração, crie o banco. Se ele já existir e estiver funcionando, reutilize-o:
 
 ```sql
-CREATE DATABASE ford_challenge;
+CREATE DATABASE ford_specs_sprint3;
 ```
 
----
+Na pasta `backend`, no PowerShell:
 
-# 3. Rodar Backend
-
-Abrir pasta:
-
-```txt
-backend
+```powershell
+$env:DATABASE_URL="jdbc:postgresql://localhost:5432/ford_specs_sprint3"
+$env:DATABASE_USER="postgres"
+$senhaBanco=Read-Host "Senha do PostgreSQL" -AsSecureString
 ```
 
-no IntelliJ IDEA.
+Digite a senha quando solicitado. Depois execute, no mesmo terminal:
 
----
-
-## Configurar application.properties
-
-Arquivo:
-
-```txt
-src/main/resources/application.properties
+```powershell
+$env:DATABASE_PASSWORD=[System.Net.NetworkCredential]::new("",$senhaBanco).Password
+$env:JWT_SECRET=([guid]::NewGuid().ToString("N") + [guid]::NewGuid().ToString("N"))
+.\mvnw.cmd spring-boot:run
 ```
 
-Configuração:
+As variáveis desse exemplo valem para o terminal atual; configure-as novamente ao abrir outro terminal. Guarde o segredo JWT para reutilizá-lo; trocá-lo invalida as sessões existentes. Em uma hospedagem, configure essas variáveis no servidor.
 
-```properties
-spring.application.name=ford-competitive-api
+`SEED_DEMO_CATALOG=false` desativa a inclusão do catálogo inicial, sem apagar dados. O inicializador preserva veículos já cadastrados. Registros antigos com fonte fictícia `mock-api.ford-challenge.com` são ocultados das consultas, sem remoção do banco.
 
-spring.datasource.url=jdbc:postgresql://localhost:5432/ford_challenge
-spring.datasource.username=postgres
-spring.datasource.password=SUA_SENHA
+Faça backup antes de atualizar um banco antigo. O histórico recebeu os atributos selecionados e a data passou a usar Instant. Para publicação além da entrega acadêmica, use migrações versionadas em lugar de `ddl-auto=update`.
 
-spring.jpa.hibernate.ddl-auto=update
-spring.jpa.show-sql=true
-spring.jpa.properties.hibernate.format_sql=true
+## Publicar a API na internet
 
-server.port=8080
-server.address=0.0.0.0
-```
+O APK precisa de uma API acessível pelo celular, com HTTPS. O arquivo `render.yaml` cria a API e o PostgreSQL no Render em poucos cliques, sem digitar credenciais. Passo a passo e limites do plano gratuito em [docs/PUBLICAR_API.md](docs/PUBLICAR_API.md).
 
----
+Além de `DATABASE_URL`, a API aceita `DB_HOST`, `DB_PORT` e `DB_NAME` separados, formato usado pelas plataformas de nuvem.
 
-## Rodar aplicação
+## Endpoints
 
-Executar:
+Swagger: `http://localhost:8080/swagger-ui/index.html`.
 
-```txt
-FordCompetitiveApiApplication.java
-```
+| Método | Caminho | Autenticação | Uso |
+|---|---|---|---|
+| GET | /health | Não | Disponibilidade |
+| POST | /auth/register | Não | Cadastro |
+| POST | /auth/login | Não | Token e perfil |
+| GET | /auth/me | Sim | Perfil atual |
+| GET | /vehicles | Sim | Catálogo |
+| GET | /vehicles/{id} | Sim | Veículo |
+| POST | /vehicles/search | Sim | Pesquisa e registro |
+| GET | /specifications/{vehicleId} | Sim | Atributos |
+| GET | /searches/history | Sim | Últimas 100 pesquisas da própria conta |
+| DELETE | /searches/history | Sim | Limpar pesquisas da própria conta |
 
-Se aparecer:
-
-```txt
-Started FordCompetitiveApiApplication
-```
-
-a API estará funcionando.
-
----
-
-# 4. Swagger/OpenAPI
-
-Abrir:
-
-```txt
-http://localhost:8080/swagger-ui/index.html
-```
-
-Endpoints disponíveis:
-
-- POST /auth/login
-- POST /auth/register
-- GET /vehicles
-- POST /vehicles/search
-- GET /specifications/{vehicleId}
-- GET /searches/history
-
----
-
-# 5. Rodar Frontend
-
-Abrir pasta:
-
-```txt
-frontend
-```
-
-no VS Code.
-
----
-
-## Instalar dependências
-
-```bash
-npm install
-```
-
----
-
-## Rodar Expo
-
-```bash
-npx expo start --clear
-```
-
----
-
-## Abrir aplicação
-
-No terminal:
-
-```txt
-Pressione W
-```
-
-para abrir no navegador.
-
-Ou utilize Expo Go no celular.
-
----
-
-# Configuração da API no Mobile
-
-Arquivo:
-
-```txt
-src/services/apiClient.js
-```
-
-## Navegador/Web
-
-```javascript
-export const API_BASE_URL = 'http://localhost:8080';
-```
-
-## Celular
-
-Utilizar IP do computador:
-
-```javascript
-export const API_BASE_URL = 'http://192.168.X.X:8080';
-```
-
-PC e celular devem estar na mesma rede Wi-Fi.
-
----
-
-# Login de Teste
-
-```txt
-E-mail: victor@test.com
-Senha: 123456
-```
-
----
-
-# Fluxo Principal da Aplicação
-
-1. Usuário realiza login
-2. API retorna JWT
-3. App salva token com AsyncStorage
-4. Usuário seleciona:
-   - modelo
-   - ano
-   - versão
-   - atributos técnicos
-5. API retorna ficha técnica padronizada
-6. Resultado pode ser compartilhado
-7. Histórico é salvo localmente
-
----
-
-# Autenticação JWT
-
-## Login
-
-Endpoint:
-
-```http
-POST /auth/login
-```
-
-Body:
+Rotas protegidas usam `Authorization: Bearer TOKEN`.
 
 ```json
 {
-  "email": "victor@test.com",
-  "senha": "123456"
+  "marca": "Ford",
+  "modelo": "Ranger",
+  "ano": 2025,
+  "versao": "Raptor 3.0 V6 EcoBoost",
+  "selectedFields": ["motor", "potencia", "torque", "transmissao"]
 }
 ```
 
-Resposta:
+Pesquisa e histórico retornam `id`, `createdAt`, `vehicle` e `selectedFields`. As especificações ficam em `vehicle.specs`. Erros esperados retornam status 400, 401, 404 ou 409 e uma mensagem adequada.
 
-```json
-{
-  "accessToken": "TOKEN_JWT",
-  "tokenType": "Bearer"
-}
+## Testes e build
+
+```powershell
+# Em backend
+.\mvnw.cmd test
+.\mvnw.cmd package
+
+# Em frontend, depois de configurar .env
+npx.cmd expo install --check
+npx.cmd expo-doctor
+npm.cmd audit
+npx.cmd expo export --platform android --clear
+npx.cmd expo export --platform web --clear
 ```
 
----
+**Exportar JavaScript não gera APK.** A compilação instalável está documentada em [GERAR_APK.md](docs/GERAR_APK.md).
 
-# Consumo de Rotas Protegidas
+Com API demo em localhost:8080 e app web em localhost:8081, execute o teste de navegação:
 
-Header:
-
-```http
-Authorization: Bearer TOKEN_JWT
+```powershell
+# Em frontend
+npm.cmd install --no-save --package-lock=false playwright
+npx.cmd playwright install chromium
+node tests/flow.cjs
 ```
 
----
+O teste cria uma conta no backend utilizado. Execute em banco de teste ou no perfil demo.
 
-# Funcionalidades Futuras
+## Telas
 
-A arquitetura foi preparada para futuras integrações:
+<!-- Após os testes, salvar os prints do celular em docs/telas-android/ com os mesmos nomes e trocar os links abaixo. -->
 
-- IA Generativa
-- Google Dorking
-- Web Scraping
-- APIs automotivas reais
-- Exportação PDF
-- Machine Learning
-- Docker
-- Deploy Cloud
-- Cache
-- Logs avançados
-- Microserviços
+Capturas web em 390 × 920. As capturas do APK em execução ficam em `docs/telas-android/`.
 
----
-
-# Observação Acadêmica
-
-Este projeto foi desenvolvido para fins acadêmicos na FIAP em parceria com a Ford.
-
-As funcionalidades de IA e scraping permanecem preparadas arquiteturalmente para futuras sprints.
-
----
-
-# Demonstração Visual
-
-Adicionar prints do projeto:
-
-| Tela | Print |
+| Tela | Captura |
 |---|---|
-| Login | assets/screenshots/login.png |
-| Pesquisa | assets/screenshots/search.png |
-| Resultado | assets/screenshots/result.png |
-| Histórico | assets/screenshots/history.png |
+| Login | [01-login.png](docs/telas/01-login.png) |
+| Cadastro | [02-cadastro.png](docs/telas/02-cadastro.png) |
+| Início | [03-inicio.png](docs/telas/03-inicio.png) |
+| Pesquisa | [04-pesquisa.png](docs/telas/04-pesquisa.png) |
+| Ficha | [05-ficha-tecnica.png](docs/telas/05-ficha-tecnica.png) |
+| Histórico | [06-historico.png](docs/telas/06-historico.png) |
+| Comparação | [07-comparacao.png](docs/telas/07-comparacao.png) |
+| Sobre | [08-sobre.png](docs/telas/08-sobre.png) |
 
-Adicionar GIF/vídeo:
+O roteiro de conclusão da entrega (API, APK, testes, vídeo) está em [docs/CHECKLIST_ENTREGA.md](docs/CHECKLIST_ENTREGA.md).
 
-```txt
-assets/demo/fluxo-principal.gif
-```
-
----
-
-# Licença
-
-Projeto acadêmico sem fins comerciais.
-
-# Prints do App
-
-# Login
-
-<img width="3836" height="1904" alt="image" src="https://github.com/user-attachments/assets/1b533e19-87ad-4dbc-bb2a-f6001d7ae4ed" />
-
-# Início
-
-<img width="1717" height="910" alt="image" src="https://github.com/user-attachments/assets/3f09ef73-ee65-4783-b8d9-12721ee3b81b" />
-
-# Pesquisa
-
-<img width="1719" height="909" alt="image" src="https://github.com/user-attachments/assets/af9bd636-d3b6-4cb0-b0c0-5fc0e1bfd21b" />
-
-# Ficha Técnica
-
-<img width="1718" height="910" alt="image" src="https://github.com/user-attachments/assets/a758dc0c-ba52-46e3-b441-2f7eebd63d11" />
-
-# Histórico
-
-<img width="1719" height="908" alt="image" src="https://github.com/user-attachments/assets/24edcb34-36d8-4c8f-8fcd-333d722ffcea" />
-
-
-# Comparar
-
-<img width="1718" height="910" alt="image" src="https://github.com/user-attachments/assets/62ea6171-144b-41e9-8913-bfac58683ed5" />
-
-
-# Sobre
-
-<img width="1718" height="911" alt="image" src="https://github.com/user-attachments/assets/efefadfb-0f40-40f3-addc-086b5cf96ecd" />
+Projeto acadêmico desenvolvido no contexto do desafio FIAP × Ford; não é apresentado como aplicativo oficial do fabricante.

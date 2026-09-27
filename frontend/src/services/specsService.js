@@ -1,52 +1,42 @@
-import { VEHICLE_DATABASE } from '../data/vehicleSpecs';
 import { FIELD_LABELS } from '../data/specAttributes';
+export const DEFAULT_FIELDS = ['motor', 'potencia', 'torque', 'transmissao', 'tracao', 'multimidia'];
+export const isAvailable = value => value !== null && value !== undefined &&
+  String(value).trim() !== '' && String(value) !== 'Não disponível';
 
-const normalize = (text = '') => text.toString().trim().toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
-
-export function findVehicle({ marca, modelo, versao }) {
-  const brand = normalize(marca);
-  const model = normalize(modelo);
-  const version = normalize(versao);
-  return VEHICLE_DATABASE.find((vehicle) => {
-    const matchBrand = normalize(vehicle.marca).includes(brand) || brand.includes(normalize(vehicle.marca));
-    const matchModel = normalize(vehicle.modelo).includes(model) || model.includes(normalize(vehicle.modelo));
-    const matchVersion = version.length === 0 || normalize(vehicle.versao).includes(version) || version.includes(normalize(vehicle.versao).slice(0, 12));
-    return matchBrand && matchModel && matchVersion;
-  });
-}
-
-export function buildStandardSpecs(vehicle, selectedFields) {
-  const selected = selectedFields?.length ? selectedFields : Object.keys(FIELD_LABELS);
-  const rows = selected.map((field) => ({
-    key: field,
-    label: FIELD_LABELS[field] || field,
-    value: vehicle?.specs?.[field] || 'Não disponível',
-    available: Boolean(vehicle?.specs?.[field] && vehicle.specs[field] !== 'Não disponível')
+export function buildStandardSpecs(vehicle, fields = DEFAULT_FIELDS, generatedAt = new Date().toISOString()) {
+  const selected = fields?.length ? fields : Object.keys(FIELD_LABELS);
+  const rows = [...new Set(selected)].filter(key => FIELD_LABELS[key]).map(key => ({
+    key, label: FIELD_LABELS[key],
+    value: isAvailable(vehicle?.specs?.[key]) ? String(vehicle.specs[key]) : 'Não disponível',
+    available: isAvailable(vehicle?.specs?.[key])
   }));
-  const availableCount = rows.filter((row) => row.available).length;
   return {
-    vehicle: vehicle || null,
-    rows,
-    coverage: Math.round((availableCount / rows.length) * 100),
-    generatedAt: new Date().toISOString(),
-    source: vehicle?.fonte || 'Nenhuma fonte encontrada',
-    confidence: vehicle?.confianca || 0
+    vehicle, rows, generatedAt,
+    coverage: rows.length ? Math.round(rows.filter(row => row.available).length / rows.length * 100) : 0,
+    source: vehicle?.fonte || 'Fonte não informada',
+    demonstrativo: vehicle?.demonstrativo !== false
   };
 }
-
-export function generateSearchResult(params, selectedFields) {
-  const vehicle = findVehicle(params);
-  return buildStandardSpecs(vehicle, selectedFields);
+export function historyToItem(record) {
+  return {
+    id: String(record.id),
+    params: { marca: record.vehicle?.marca, modelo: record.vehicle?.modelo,
+      ano: record.vehicle?.ano, versao: record.vehicle?.versao },
+    result: buildStandardSpecs(record.vehicle, record.selectedFields, record.createdAt)
+  };
 }
-
-export function compareVehicles(primaryId, secondaryId, selectedFields) {
-  const primary = VEHICLE_DATABASE.find((item) => item.id === primaryId);
-  const secondary = VEHICLE_DATABASE.find((item) => item.id === secondaryId);
-  const selected = selectedFields?.length ? selectedFields : ['motor', 'potencia', 'torque', 'transmissao', 'tracao'];
-  return selected.map((field) => ({
-    key: field,
-    label: FIELD_LABELS[field],
-    primary: primary?.specs?.[field] || 'Não disponível',
-    secondary: secondary?.specs?.[field] || 'Não disponível'
+export function compareVehicles(primary, secondary, fields = DEFAULT_FIELDS) {
+  return [...new Set(fields)].filter(key => FIELD_LABELS[key]).map(key => ({
+    key, label: FIELD_LABELS[key],
+    primary: isAvailable(primary?.specs?.[key]) ? String(primary.specs[key]) : 'Não disponível',
+    secondary: isAvailable(secondary?.specs?.[key]) ? String(secondary.specs[key]) : 'Não disponível'
   }));
+}
+export function shareResult(result) {
+  const v = result.vehicle;
+  return [v.marca + ' ' + v.modelo + ' ' + v.versao + ' · ' + v.ano,
+    ...result.rows.map(row => row.label + ': ' + row.value),
+    '', 'Fonte: ' + result.source,
+    result.demonstrativo ? 'Dados demonstrativos — não verificados externamente.' : '',
+    'Ford Specs Intelligence'].filter(Boolean).join('\n');
 }

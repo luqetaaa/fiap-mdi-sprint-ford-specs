@@ -1,0 +1,11 @@
+{
+  "success": true,
+  "checkedAt": "2026-09-27T19:10:47.575Z",
+  "appVersion": "1.2.0",
+  "expoSdk": 57,
+  "browser": "153.0.8010.0",
+  "viewport": "390x920",
+  "backend": "Spring Boot com perfil demo (H2)",
+  "pageErrors": [],
+  "screenshots": 8
+}

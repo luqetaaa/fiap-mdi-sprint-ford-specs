@@ -1,0 +1,13 @@
+{
+  "runtime": "Java 21.0.12.1",
+  "profile": "demo",
+  "database": "H2 in memory",
+  "tests": [
+    {
+      "tests": "7",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0"
+    }
+  ]
+}
