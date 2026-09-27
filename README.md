@@ -8,8 +8,8 @@ Projeto acadêmico FIAP × Ford para consultar especificações, selecionar atri
 
 | Item | Link |
 |---|---|
-| APK Android (v1.3.0) | [Baixar APK](COLE-AQUI-O-LINK-DO-APK) |
-| API publicada | https://COLE-AQUI-A-URL.onrender.com ([Swagger](https://COLE-AQUI-A-URL.onrender.com/swagger-ui/index.html)) |
+| APK Android (v1.3.0) | [Baixar APK](https://github.com/luqetaaa/fiap-mdi-sprint-ford-specs/releases/download/v1.3.0/ford-specs-v1.3.0.apk) |
+| API publicada | https://ford-specs-api.onrender.com ([Swagger](https://ford-specs-api.onrender.com/swagger-ui/index.html)) |
 | Vídeo de demonstração | [Assistir](COLE-AQUI-O-LINK-DO-VIDEO) |
 | Evidência de instalação | Testado em APARELHO, Android VERSÃO, em DATA: XX de 19 fluxos aprovados ([detalhes](docs/CHECKLIST_ENTREGA.md#evidência-de-instalação)) |
 
