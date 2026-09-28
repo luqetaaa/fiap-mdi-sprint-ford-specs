@@ -10,7 +10,6 @@ Projeto acadêmico FIAP × Ford para consultar especificações, selecionar atri
 |---|---|
 | APK Android (v1.3.0) | [Baixar APK](https://github.com/luqetaaa/fiap-mdi-sprint-ford-specs/releases/download/v1.3.0/ford-specs-v1.3.0.apk) |
 | API publicada | https://ford-specs-api.onrender.com ([Swagger](https://ford-specs-api.onrender.com/swagger-ui/index.html)) |
-| Vídeo de demonstração | [Assistir](COLE-AQUI-O-LINK-DO-VIDEO) |
 | Evidência de instalação | Testado em APARELHO, Android VERSÃO, em DATA: XX de 19 fluxos aprovados ([detalhes](docs/CHECKLIST_ENTREGA.md#evidência-de-instalação)) |
 
 Para instalar: baixe o `.apk` em um celular Android, abra o arquivo e permita a instalação desta origem. Não é necessário Expo Go. Na primeira abertura, crie uma conta em **Criar uma conta**.
@@ -219,14 +218,13 @@ Capturas web em 390 × 920. As capturas do APK em execução ficam em `docs/tela
 
 | Tela | Captura |
 |---|---|
-| Login | [01-login.png](docs/telas/01-login.png) |
-| Cadastro | [02-cadastro.png](docs/telas/02-cadastro.png) |
-| Início | [03-inicio.png](docs/telas/03-inicio.png) |
-| Pesquisa | [04-pesquisa.png](docs/telas/04-pesquisa.png) |
-| Ficha | [05-ficha-tecnica.png](docs/telas/05-ficha-tecnica.png) |
-| Histórico | [06-historico.png](docs/telas/06-historico.png) |
-| Comparação | [07-comparacao.png](docs/telas/07-comparacao.png) |
-| Sobre | [08-sobre.png](docs/telas/08-sobre.png) |
+| Cadastro | <img width="375" height="837" alt="Cadastro" src="https://github.com/user-attachments/assets/935e0bcc-baac-419c-bbee-b3b28f85d1b9" /> |
+| Início | <img width="375" height="829" alt="HomePage" src="https://github.com/user-attachments/assets/fb508070-b1d1-4370-8388-337b6ff6182c" /> |
+| Pesquisa | <img width="371" height="824" alt="Search" src="https://github.com/user-attachments/assets/edd3f9af-3286-4273-8b52-bc38a8c1a210" /> |
+| Ficha | <img width="373" height="827" alt="FichaTecnica" src="https://github.com/user-attachments/assets/29bbfff4-81b6-47a6-a4bd-162218f7d77a" /> |
+| Histórico | <img width="373" height="826" alt="Historico" src="https://github.com/user-attachments/assets/09a5d498-c8ec-4468-9d75-6e390f89bd00" /> |
+| Comparação | <img width="368" height="825" alt="Comparação" src="https://github.com/user-attachments/assets/75dca0dc-3f7f-4704-9069-b743f9915650" /> |
+| Sobre | <img width="374" height="824" alt="Sobre" src="https://github.com/user-attachments/assets/48f4c34d-a2a1-4632-9c26-93261703bc57" /> |
 
 O roteiro de conclusão da entrega (API, APK, testes, vídeo) está em [docs/CHECKLIST_ENTREGA.md](docs/CHECKLIST_ENTREGA.md).
 
